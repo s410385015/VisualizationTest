@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.bunifuElipse1 = new Bunifu.Framework.UI.BunifuElipse(this.components);
             this.bunifuDragControl1 = new Bunifu.Framework.UI.BunifuDragControl(this.components);
+            this.graph1 = new visualization.Graph();
             this.SuspendLayout();
             // 
             // bunifuElipse1
@@ -45,11 +46,21 @@
             this.bunifuDragControl1.TargetControl = this;
             this.bunifuDragControl1.Vertical = true;
             // 
+            // graph1
+            // 
+            this.graph1.BackColor = System.Drawing.Color.White;
+            this.graph1.Location = new System.Drawing.Point(57, 101);
+            this.graph1.Name = "graph1";
+            this.graph1.Size = new System.Drawing.Size(914, 272);
+            this.graph1.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(701, 514);
+            this.BackColor = System.Drawing.Color.BlanchedAlmond;
+            this.ClientSize = new System.Drawing.Size(1065, 514);
+            this.Controls.Add(this.graph1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form1";
             this.Text = "Form1";
@@ -61,6 +72,8 @@
 
         private Bunifu.Framework.UI.BunifuElipse bunifuElipse1;
         private Bunifu.Framework.UI.BunifuDragControl bunifuDragControl1;
+        private Graph graph1;
+       
 
     }
 }

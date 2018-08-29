@@ -8,3 +8,4 @@ D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\vi
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.csproj.GenerateResource.Cache
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.exe
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.pdb
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.Graph.resources
