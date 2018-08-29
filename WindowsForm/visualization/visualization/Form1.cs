@@ -16,5 +16,15 @@ namespace visualization
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            graph_table.TestFunc();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            graph_table.TestFunc2();
+        }
     }
 }
