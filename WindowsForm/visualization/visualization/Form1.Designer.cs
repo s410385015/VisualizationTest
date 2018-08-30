@@ -35,6 +35,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.LabelList = new System.Windows.Forms.ListBox();
             this.graph_table = new visualization.Graph();
+            this.Update = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // bunifuElipse1
@@ -87,12 +88,23 @@
             this.graph_table.Size = new System.Drawing.Size(1221, 323);
             this.graph_table.TabIndex = 0;
             // 
+            // Update
+            // 
+            this.Update.Location = new System.Drawing.Point(266, 490);
+            this.Update.Name = "Update";
+            this.Update.Size = new System.Drawing.Size(75, 23);
+            this.Update.TabIndex = 4;
+            this.Update.Text = "Update";
+            this.Update.UseVisualStyleBackColor = true;
+            this.Update.Click += new System.EventHandler(this.Update_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.BlanchedAlmond;
             this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.Update);
             this.Controls.Add(this.LabelList);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -113,6 +125,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ListBox LabelList;
+        private System.Windows.Forms.Button Update;
        
 
     }

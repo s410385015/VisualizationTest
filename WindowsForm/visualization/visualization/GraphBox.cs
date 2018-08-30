@@ -56,7 +56,7 @@ namespace visualization
         public Font label_font;
         public Color label_color_org;
         public Color label_color_select;
-        
+        public List<string> label_name;
         
         
         public int tmp_select;
@@ -73,7 +73,8 @@ namespace visualization
         public Graph()
         {
             InitializeComponent();
-           
+            //Init();
+           // GraphInit();
            
         }
 
@@ -102,7 +103,7 @@ namespace visualization
             label_axis_num = 10;
             label_axis_sizeOflabel = 8;
             label_axis_heightOflabel = 15;
-            label_axis_widthOflabel = 20;
+            label_axis_widthOflabel = 40;
             label_axis_font = new Font("Arial", label_axis_sizeOflabel);
             label_axis_brush = new SolidBrush(Color.Black);
             label_axis_format = new StringFormat();
@@ -117,7 +118,7 @@ namespace visualization
             label_width = 30;
             label_font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             data = new List<DataLabel>();
-           
+            label_name = new List<string>();
 
             label_color_org = Color.Black;
             label_color_select = Color.Red;
@@ -130,6 +131,58 @@ namespace visualization
             axis_length = (w - margin_left - margin_right) / (class_num - 1);
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
             
+        }
+
+
+        //lb label axis data
+        //d  data
+        //ln label name
+        public void InsertData(int cn, int dn, List<List<float>> lb, List<List<float>> d,List<string> ln)
+        {
+            class_num = cn;
+            data_num = dn;
+
+            axis_length = (w - margin_left - margin_right) / (class_num - 1);
+
+
+          
+            label_name = new List<string>();
+            data = new List<DataLabel>();
+
+
+            label_name = ln;
+
+            for(int i=0;i<cn;i++)
+            {
+                DataLabel datatmp = new DataLabel();
+                for (int j = 0; j < lb[i].Count; j++)
+                    datatmp.data_label.Add(lb[i][j]);
+
+                for (int j = 0; j < dn; j++)
+                    datatmp._data.Add(d[j][i]);
+
+                data.Add(datatmp);
+            }
+
+         
+        }
+
+        public void Update()
+        {
+            g.Clear(this.BackColor);
+            GraphInit();
+            DrawAxis();
+            for (int i = 0; i < class_num - 1; i++)
+                DrawDataLine(i);
+                
+        }
+        
+        public void Reset()
+        {
+            foreach (DataLabel dl in data)
+                this.Controls.Remove(dl.label);
+            data.Clear();
+            label_name.Clear();
         }
 
         public void GenerateFakeData()
@@ -252,9 +305,9 @@ namespace visualization
 
         private void Graph_Paint(object sender, PaintEventArgs e)
         {
-            DrawAxis();
-            for (int i = 0; i < class_num-1; i++)
-                DrawDataLine(i);
+           // DrawAxis();
+            //for (int i = 0; i < class_num-1; i++)
+                //DrawDataLine(i);
         }
 
         public void GenerateLabel(Point p,int index)
@@ -263,12 +316,18 @@ namespace visualization
             data[index].label = new Label();
             data[index].label.Font = label_font;
             data[index].label.Location = p;
-            data[index].label.Text = "Label:" + index.ToString();
+            if (label_name.Count > 0)
+                data[index].label.Text = label_name[index];
+            else
+                data[index].label.Text = "Label:" + index.ToString();
+           
             data[index].label.Name = index.ToString();
             data[index].label.Click += new EventHandler(label_Click);
 
             this.Controls.Add(data[index].label);
         }
+
+
 
         public void label_Click(object sender, EventArgs e)
         {

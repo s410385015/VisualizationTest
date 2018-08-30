@@ -65,7 +65,7 @@ namespace visualization
             labelNum = label.Count;
             dataNum = data.Count;
 
-            TestFunc();
+            //TestFunc();
           
         }
 
@@ -94,24 +94,57 @@ namespace visualization
                     tmp = pick_data[j].data[i];
                 }
 
+                
                 if(_min==_max)
                 {
-                    LabelMinMax lmm = new LabelMinMax(_max + 0.1f*_max, _min - 0.1f*_min, 2);
+                    LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f*_max), Math.Abs(_min - 0.1f*_min), 2);
                     labelRange.Add(lmm);
                 }
                 else
                 {
-                    LabelMinMax lmm = new LabelMinMax(_max + _minRange, _min - _minRange, (int)((_max - _min) / ((_maxRange + _minRange) / 2))+2);
+                    LabelMinMax lmm = new LabelMinMax(_max, _min , (int)((_max - _min) / ((_maxRange + _minRange) / 2))+2);
                     labelRange.Add(lmm);
                 }
+                 
+                //LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f * _max), Math.Abs(_min - 0.1f * _min), (int)((_max - _min) / ((_maxRange + _minRange) / 2)) + 2);
+                //labelRange.Add(lmm);
+            }
+        }
+        public void CalculateLabelRange()
+        {
+            labelRange = new List<LabelMinMax>();
+            for (int i = 0; i < labelNum; i++)
+            {
+                float _min, _max, _minRange, _maxRange;
+                float tmp = data[0].data[i];
+                _max = -0xffffffff;
+                _min = _minRange = 0xffffffff;
+                _maxRange = 0;
+
+
+                for (int j = 0; j < data.Count; j++)
+                {
+
+                    _max = Math.Max(_max, data[j].data[i]);
+                    _min = Math.Min(_min, data[j].data[i]);
+
+                    //_maxRange = Math.Max(_maxRange, Math.Abs(pick_data[j].data[i] - tmp));
+                    //_minRange = Math.Min(_minRange, Math.Abs(pick_data[j].data[i] - tmp));
+
+                    tmp = data[j].data[i];
+                }
+
+
                 
+
+                LabelMinMax lmm = new LabelMinMax(_max , _min, 5);
+                labelRange.Add(lmm);
             }
         }
 
-
         public void TestFunc()
         {
-              CalculateLabelRange(SearchData("2007/1/2", "2007/1/10"));
+              //CalculateLabelRange(SearchData("2007/1/2", "2007/1/10"));
               foreach (LabelMinMax lmm in labelRange)
                   lmm.Printf();
         }
@@ -149,12 +182,20 @@ namespace visualization
         public float min;
         public float max;
         public int rangeBetween;
-        public LabelMinMax(float n,float x,int r)
+        public List<float> value;
+        public float i;
+        public LabelMinMax(float x,float n,int r)
         {
             min=n;
             max=x;
             rangeBetween = r;
 
+            i = (max - min) / r;
+
+            value = new List<float>();
+
+            for (int j = -1; j <= r+1; j++)
+                value.Add(min + (i * j));
         }
 
         public void Printf()
