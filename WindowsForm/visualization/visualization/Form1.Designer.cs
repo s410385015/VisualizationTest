@@ -33,6 +33,7 @@
             this.bunifuDragControl1 = new Bunifu.Framework.UI.BunifuDragControl(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.LabelList = new System.Windows.Forms.ListBox();
             this.graph_table = new visualization.Graph();
             this.SuspendLayout();
             // 
@@ -68,6 +69,16 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // LabelList
+            // 
+            this.LabelList.FormattingEnabled = true;
+            this.LabelList.ItemHeight = 15;
+            this.LabelList.Location = new System.Drawing.Point(44, 490);
+            this.LabelList.Name = "LabelList";
+            this.LabelList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.LabelList.Size = new System.Drawing.Size(178, 244);
+            this.LabelList.TabIndex = 3;
+            // 
             // graph_table
             // 
             this.graph_table.BackColor = System.Drawing.Color.White;
@@ -81,13 +92,15 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.BlanchedAlmond;
-            this.ClientSize = new System.Drawing.Size(1298, 509);
+            this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.LabelList);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.graph_table);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 
         }
@@ -99,6 +112,7 @@
         private Graph graph_table;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ListBox LabelList;
        
 
     }
