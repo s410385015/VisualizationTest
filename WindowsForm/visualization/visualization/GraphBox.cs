@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace visualization
 {
-    
+
 
 
     public partial class Graph : UserControl
@@ -63,18 +63,20 @@ namespace visualization
         public List<DataLabel> data;
 
         public Graphics g;
+        public Graphics tmp_g;
 
         public Color data_old;
         public Color data_new;
         public int data_line_size;
         public int data_num;
 
-
+        public bool isExist = false;
+        public bool reLabel = true;
         public Graph()
         {
             InitializeComponent();
-            //Init();
-           // GraphInit();
+            Init();
+            pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphInit);
            
         }
 
@@ -89,17 +91,17 @@ namespace visualization
 
             margin_top = 20;
             margin_bottom = 10;
-            margin_left = 50;
+            margin_left = 70;
             margin_right = 50;
 
-            axis_size = 3;
+            axis_size = 1;
             axis_color = Color.Black;
             
             
           
 
-            label_axis_size = 3;
-            label_axis_width = 5;
+            label_axis_size = 1;
+            label_axis_width = 3;
             label_axis_num = 10;
             label_axis_sizeOflabel = 8;
             label_axis_heightOflabel = 15;
@@ -114,7 +116,7 @@ namespace visualization
             
             class_num = 3;
             label_size = 5;
-            label_height = 20;
+            label_height = 10;
             label_width = 30;
             label_font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             data = new List<DataLabel>();
@@ -130,7 +132,8 @@ namespace visualization
 
             axis_length = (w - margin_left - margin_right) / (class_num - 1);
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
-            
+
+            pictureBox1.Size = new Size(this.Width, (int)(this.Height*0.95));
         }
 
 
@@ -139,11 +142,14 @@ namespace visualization
         //ln label name
         public void InsertData(int cn, int dn, List<List<float>> lb, List<List<float>> d,List<string> ln)
         {
+          
+            w = this.Size.Width;
+            h = pictureBox1.Size.Height;
             class_num = cn;
             data_num = dn;
 
             axis_length = (w - margin_left - margin_right) / (class_num - 1);
-
+            axis_height = h - margin_top - margin_bottom - label_height;
 
           
             label_name = new List<string>();
@@ -167,20 +173,26 @@ namespace visualization
          
         }
 
+        public void drawGraph()
+        {
+            reLabel = true;
+            pictureBox1.Invalidate();
+        }
+
         public void Update()
         {
             g.Clear(this.BackColor);
-            GraphInit();
+            //GraphInit();
             DrawAxis();
             for (int i = 0; i < class_num - 1; i++)
                 DrawDataLine(i);
-                
+            
         }
         
         public void Reset()
         {
             foreach (DataLabel dl in data)
-                this.Controls.Remove(dl.label);
+                pictureBox1.Controls.Remove(dl.label);
             data.Clear();
             label_name.Clear();
         }
@@ -240,10 +252,15 @@ namespace visualization
            
         }
 
-        public void GraphInit()
+        private void GraphInit(object sender, System.Windows.Forms.PaintEventArgs e)
         {
-            g = this.CreateGraphics();
+           
+            g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            if(isExist)
+                Update();
+            //g = CreateGraphics();
+            //
             //g.DrawRectangle(new Pen(axis_color, axis_size), new Rectangle(50, 50, 100, 100));
         }
 
@@ -279,19 +296,22 @@ namespace visualization
                     g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
-                GenerateLabel(new Point(p1.X-label_width, p2.Y +label_height/2), i);
+                if(reLabel)
+                    GenerateLabel(new Point(p1.X-label_width, p2.Y +label_height/2), i);
                 g.DrawLine(pen, p1, p2);
             }
 
+            reLabel = false;
 
         }
 
         private void Graph_Load(object sender, EventArgs e)
         {
+
             
             Init();
-            GenerateFakeData();
-            GraphInit();
+            //GenerateFakeData();
+            //GraphInit();
          
  
            
@@ -312,7 +332,7 @@ namespace visualization
 
         public void GenerateLabel(Point p,int index)
         {
-
+           
             data[index].label = new Label();
             data[index].label.Font = label_font;
             data[index].label.Location = p;
@@ -323,11 +343,11 @@ namespace visualization
            
             data[index].label.Name = index.ToString();
             data[index].label.Click += new EventHandler(label_Click);
-
-            this.Controls.Add(data[index].label);
+            data[index].label.BringToFront();
+            pictureBox1.Controls.Add(data[index].label);
         }
 
-
+      
 
         public void label_Click(object sender, EventArgs e)
         {
@@ -339,26 +359,31 @@ namespace visualization
                 for (int j = 0; j < data.Count; j++)
                     if (data[j].isObj(l))  
                         i = j;
-                Console.WriteLine("pre select " + tmp_select);
+                //Console.WriteLine("pre select " + tmp_select);
               
                 
    
                 if (me.Button == MouseButtons.Left)
                 {
-                    if (l.ForeColor == label_color_select)
+                    if (data[i].label.ForeColor == label_color_select)
                     {
                         
                         data[i].Reverse();
+
+                        /*
                         DestoryAxis(i);
                         DestroyLineData(i);
                         DestroyLineData(i - 1);
+
                         
                         RedrawAxis(i);
-                        RedrawAxis(i+1);
+                        RedrawAxis(i + 1);
                         DrawDataLine(i);
-                        DrawDataLine(i-1);
+                        DrawDataLine(i - 1);
+                        */
+                        pictureBox1.Invalidate();
 
-                        l.ForeColor = label_color_org;
+                        data[i].label.ForeColor = label_color_org;
                         tmp_select =-1;
                     }
                     else
@@ -367,35 +392,47 @@ namespace visualization
 
                         if (tmp_select == -1)
                         {
-                            l.ForeColor = label_color_select;
+                            data[i].label.ForeColor = label_color_select;
                             tmp_select = i;
                         }
                         else
                         {
-
-
+                            DisSelectLabel(i, tmp_select);
+                            /*
                             DestoryAxis(i);
                             DestoryAxis(tmp_select);
                             DestroyLineData(i);
                             DestroyLineData(i-1);
                             DestroyLineData(tmp_select);
                             DestroyLineData(tmp_select-1);
-
+                            */
                             SwapData(i, tmp_select);
 
 
+                            
+
+
+                            /*
                             RedrawAxis(i);
                             RedrawAxis(i+1);
                             RedrawAxis(tmp_select);
                             RedrawAxis(tmp_select+1);
+
+
+
                             DrawDataLine(i);
                             DrawDataLine(i-1);
-                            DrawDataLine(tmp_select);
-                            DrawDataLine(tmp_select - 1);
+                            if(i-1!=tmp_select)
+                                DrawDataLine(tmp_select);
+                            if(tmp_select-1!=i)
+                                DrawDataLine(tmp_select - 1);
+                            */
+                            pictureBox1.Invalidate();
 
-                            DisSelectLabel(i, tmp_select);
+                            
                             
 
+                            //Console.WriteLine("done");
 
                             tmp_select = -1;
                         }
@@ -404,9 +441,14 @@ namespace visualization
                     
                 }
                 else if (me.Button == MouseButtons.Right)
-                    l.ForeColor = label_color_org;
+                        data[i].label.ForeColor = label_color_org;
+                
+
+
 
                 
+                foreach (DataLabel dl in data)
+                    Console.WriteLine(dl.label.ForeColor);
         }
 
         public void DestoryAxis(int index)
@@ -423,10 +465,10 @@ namespace visualization
 
         public void DisSelectLabel(int indexA,int indexB)
         {
-      
+            Console.WriteLine(indexA + " " + indexB);
             data[indexA].label.ForeColor = label_color_org;
             data[indexB].label.ForeColor = label_color_org;
-           
+            data[indexB].label.ForeColor = label_color_org;
             
         }
 
@@ -590,11 +632,15 @@ namespace visualization
 
         public Color GetTimeColor(int cur)
         {
-            float factor = cur / data_num;
+            if (data_num - 1 == 0)
+                return data_new;
+            float factor = (float)cur / (data_num-1);
 
-            int r=data_old.R-(data_old.R-data_new.R)/(data_num-1)*cur;
-            int g=data_old.G-(data_old.G-data_new.G)/(data_num-1)*cur;
-            int b=data_old.B-(data_old.B-data_new.B)/(data_num-1)*cur;
+
+            //Console.WriteLine(factor + " ");
+            int r=data_old.R-(int)((data_old.R-data_new.R)*factor);
+            int g=data_old.G-(int)((data_old.G-data_new.G)*factor);
+            int b=data_old.B-(int)((data_old.B-data_new.B)*factor);
 
             Color newColor = Color.FromArgb(r, g, b);
 
@@ -661,7 +707,9 @@ namespace visualization
             _data.Clear();
             foreach (float f in l._data)
                 _data.Add(f);
-            label.Name = l.label.Name;
+
+            //Console.WriteLine(label.Text+"??  "+ l.label.Text);
+            //label.Name = l.label.Name;
             label.Text = l.label.Text;
         }
 

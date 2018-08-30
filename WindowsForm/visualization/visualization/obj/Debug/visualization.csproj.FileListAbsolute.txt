@@ -2,10 +2,12 @@ D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\vi
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\visualization.exe
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\visualization.pdb
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\Bunifu_UI_v1.5.3.dll
-D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.csprojResolveAssemblyReference.cache
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.Form1.resources
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.Properties.Resources.resources
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.csproj.GenerateResource.Cache
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.exe
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.pdb
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.Graph.resources
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.Design.dll
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.dll
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.Fonts.dll
