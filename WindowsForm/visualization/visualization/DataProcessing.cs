@@ -24,9 +24,10 @@ namespace visualization
             label=new List<string>();
             data=new List<Data>();
 
-            dataFile="D:\\桌面用\\Plastics_and_Chemicals_Macro.csv";
+            dataFile="Plastics_and_Chemicals_Macro.csv";
         }
         
+        //Load data from the csv, and fiil in the list of the informations
         public void LoadData()
         {
             string[] raw_data = File.ReadAllLines (dataFile,System.Text.Encoding.Default);
@@ -68,8 +69,9 @@ namespace visualization
             //TestFunc();
           
         }
-
-
+       
+        //Use by other data processing function
+        //eg. ExecutePython.cs
         public void SetByPreprocessData(List<string> _label,List<string> _date,List<List<float>> _data)
         {
             label = _label;
@@ -83,6 +85,9 @@ namespace visualization
             labelNum = label.Count;
             dataNum = data.Count;
         }
+
+
+        //Calculate the min and max value of the each axis by condition
         public void CalculateLabelRange(List<Data> pick_data)
         {
             labelRange = new List<LabelMinMax>();
@@ -123,6 +128,8 @@ namespace visualization
                 //labelRange.Add(lmm);
             }
         }
+
+        //Calculate the min and max value of the each axis by whole data;
         public void CalculateLabelRange()
         {
             labelRange = new List<LabelMinMax>();
@@ -162,6 +169,8 @@ namespace visualization
                   lmm.Printf();
         }
 
+
+        //Search for the data that meet the conditions
         public List<Data> SearchData(string d1,string d2)
         {
            

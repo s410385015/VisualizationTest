@@ -29,10 +29,13 @@
         private void InitializeComponent()
         {
             this.LabelView = new MetroFramework.Controls.MetroListView();
-            this.metroButton1 = new MetroFramework.Controls.MetroButton();
+            this.updateBtn = new MetroFramework.Controls.MetroButton();
             this.preTime = new MetroFramework.Controls.MetroDateTime();
             this.LabelList = new System.Windows.Forms.ListBox();
             this.curTime = new MetroFramework.Controls.MetroDateTime();
+            this.dataNumLabel = new MetroFramework.Controls.MetroLabel();
+            this.metroScrollBar1 = new MetroFramework.Controls.MetroScrollBar();
+            this.alphaBar = new MetroFramework.Controls.MetroScrollBar();
             this.graph_table = new visualization.Graph();
             this.SuspendLayout();
             // 
@@ -57,15 +60,15 @@
             this.LabelView.View = System.Windows.Forms.View.List;
             this.LabelView.SelectedIndexChanged += new System.EventHandler(this.LabelView_SelectedIndexChanged);
             // 
-            // metroButton1
+            // updateBtn
             // 
-            this.metroButton1.Location = new System.Drawing.Point(1200, 721);
-            this.metroButton1.Name = "metroButton1";
-            this.metroButton1.Size = new System.Drawing.Size(75, 23);
-            this.metroButton1.TabIndex = 6;
-            this.metroButton1.Text = "Update";
-            this.metroButton1.UseSelectable = true;
-            this.metroButton1.Click += new System.EventHandler(this.metroButton1_Click);
+            this.updateBtn.Location = new System.Drawing.Point(1200, 721);
+            this.updateBtn.Name = "updateBtn";
+            this.updateBtn.Size = new System.Drawing.Size(75, 23);
+            this.updateBtn.TabIndex = 6;
+            this.updateBtn.Text = "Update";
+            this.updateBtn.UseSelectable = true;
+            this.updateBtn.Click += new System.EventHandler(this.metroButton1_Click);
             // 
             // preTime
             // 
@@ -89,6 +92,7 @@
             this.LabelList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.LabelList.Size = new System.Drawing.Size(46, 19);
             this.LabelList.TabIndex = 3;
+            this.LabelList.SelectedIndexChanged += new System.EventHandler(this.LabelList_SelectedIndexChanged);
             // 
             // curTime
             // 
@@ -102,6 +106,46 @@
             this.curTime.TabIndex = 7;
             this.curTime.Value = new System.DateTime(2007, 1, 2, 0, 0, 0, 0);
             this.curTime.DragOver += new System.Windows.Forms.DragEventHandler(this.curTime_DragOver);
+            // 
+            // dataNumLabel
+            // 
+            this.dataNumLabel.AutoSize = true;
+            this.dataNumLabel.Location = new System.Drawing.Point(24, 64);
+            this.dataNumLabel.Name = "dataNumLabel";
+            this.dataNumLabel.Size = new System.Drawing.Size(0, 0);
+            this.dataNumLabel.TabIndex = 9;
+            // 
+            // metroScrollBar1
+            // 
+            this.metroScrollBar1.LargeChange = 10;
+            this.metroScrollBar1.Location = new System.Drawing.Point(0, 0);
+            this.metroScrollBar1.Maximum = 100;
+            this.metroScrollBar1.Minimum = 0;
+            this.metroScrollBar1.MouseWheelBarPartitions = 10;
+            this.metroScrollBar1.Name = "metroScrollBar1";
+            this.metroScrollBar1.Orientation = MetroFramework.Controls.MetroScrollOrientation.Vertical;
+            this.metroScrollBar1.ScrollbarSize = 10;
+            this.metroScrollBar1.Size = new System.Drawing.Size(10, 200);
+            this.metroScrollBar1.TabIndex = 10;
+            this.metroScrollBar1.UseSelectable = true;
+            // 
+            // alphaBar
+            // 
+            this.alphaBar.LargeChange = 10;
+            this.alphaBar.Location = new System.Drawing.Point(198, 49);
+            this.alphaBar.Maximum = 100;
+            this.alphaBar.Minimum = 0;
+            this.alphaBar.MouseWheelBarPartitions = 10;
+            this.alphaBar.Name = "alphaBar";
+            this.alphaBar.Orientation = MetroFramework.Controls.MetroScrollOrientation.Horizontal;
+            this.alphaBar.ScrollbarSize = 15;
+            this.alphaBar.Size = new System.Drawing.Size(200, 15);
+            this.alphaBar.TabIndex = 255;
+            this.alphaBar.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.alphaBar.UseBarColor = true;
+            this.alphaBar.UseCustomBackColor = true;
+            this.alphaBar.UseSelectable = true;
+            this.alphaBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.alphaBar_Scroll);
             // 
             // graph_table
             // 
@@ -120,19 +164,25 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.alphaBar);
+            this.Controls.Add(this.metroScrollBar1);
+            this.Controls.Add(this.dataNumLabel);
             this.Controls.Add(this.preTime);
             this.Controls.Add(this.curTime);
-            this.Controls.Add(this.metroButton1);
+            this.Controls.Add(this.updateBtn);
             this.Controls.Add(this.LabelView);
             this.Controls.Add(this.LabelList);
             this.Controls.Add(this.graph_table);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.Name = "Form1";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Graph";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.Form1_DragOver);
             this.DragLeave += new System.EventHandler(this.Form1_DragLeave);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -140,10 +190,13 @@
 
         private Graph graph_table;
         private MetroFramework.Controls.MetroListView LabelView;
-        private MetroFramework.Controls.MetroButton metroButton1;
+        private MetroFramework.Controls.MetroButton updateBtn;
         private MetroFramework.Controls.MetroDateTime preTime;
         private System.Windows.Forms.ListBox LabelList;
         private MetroFramework.Controls.MetroDateTime curTime;
+        private MetroFramework.Controls.MetroLabel dataNumLabel;
+        private MetroFramework.Controls.MetroScrollBar metroScrollBar1;
+        private MetroFramework.Controls.MetroScrollBar alphaBar;
        
 
     }

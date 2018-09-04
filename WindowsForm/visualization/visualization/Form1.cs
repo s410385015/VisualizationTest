@@ -17,52 +17,63 @@ namespace visualization
         public Form1()
         {
             InitializeComponent();
-            //this.WindowState = FormWindowState.Maximized;
-
+            
             dp = new DataProcessing();
             
             //Load by python script
+            /*
             ExecutePython e = new ExecutePython();
             e.Ececute();
             e.TestFunc();
             dp.SetByPreprocessData(e.label, e.date, e.data);
-           
-            //Load by C# function
-            //dp.LoadData();
-           
-           
-        }
+            */
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
+            //Load by C# function
+            dp.LoadData();
 
           
+        }
+
+
+        //Redraw the control components to the correspond size
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            
+          
             this.BackColor = Color.Black;
-            graph_table.Size = new Size(this.Size.Width, graph_table.Size.Height);
+            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height*0.48));
             graph_table.Location = new Point(0, graph_table.Location.Y);
 
 
+            /*
             LabelList.Location = new Point((int)(this.Width * 0.005), LabelList.Location.Y);
             LabelList.Size = new Size((int)(this.Width * 0.99), LabelList.Height );
             
             foreach (string s in dp.label)
                 LabelList.Items.Add(s);
+            */
 
 
-
-            LabelView.Location = new Point((int)(this.Width * 0.005), LabelView.Location.Y);
-            LabelView.Size = new Size((int)(this.Width * 0.99), LabelView.Height);
+            LabelView.Location = new Point((int)(this.Width * 0.005),(int)(this.Height*0.6));
+            LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height*0.3));
                      
             foreach (string s in dp.label)
                 LabelView.Items.Add(new ListViewItem(s));
 
             LabelList.Visible = false;
-            //LabelView.Visible = false;
-            //HorizontalListbox();
+       
+            graph_table.Init();
+
+            preTime.Location = new Point(preTime.Location.X, this.Height - preTime.Height*2);
+            curTime.Location = new Point(curTime.Location.X, this.Height - curTime.Height * 2);
+            updateBtn.Location = new Point(this.Width - (int)(updateBtn.Width * 1.5), (int)(this.Height*0.94));
+
+            alphaBar.Location = new Point((int)(this.Width - alphaBar.Width *1.1), (int)(this.Height * 0.05));
+            alphaBar.Value = 100;
         }
-
+        
       
-
+        /*
         public void HorizontalListbox()
         {
 
@@ -82,7 +93,8 @@ namespace visualization
                 LabelView.Items.Add(new ListViewItem(tmp));
             }
         }
-
+        
+       
         public void listView1_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
             Color textColor = Color.Black;
@@ -101,20 +113,23 @@ namespace visualization
                                   textColor, Color.Empty,
                                   TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
-
+        */
         private void LabelView_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
 
+
+
+        //Handle the update button
+        //Update the data that satisfy the condition 
         private void metroButton1_Click(object sender, EventArgs e)
         {
             graph_table.Reset();
 
 
             List<int> select_index = new List<int>();
-            //foreach (int i in LabelList.SelectedIndices)
-            //select_index.Add(i);
+           
 
             foreach (int i in LabelView.CheckedIndices)
                 select_index.Add(i);
@@ -140,10 +155,10 @@ namespace visualization
 
             List<Data> tmpData = new List<Data>();
 
-
+            /*
             Console.WriteLine(preTime.Value.Year + "/" + preTime.Value.Month + "/" + preTime.Value.Day);
             Console.WriteLine(curTime.Value.Year + "/" + curTime.Value.Month + "/" + curTime.Value.Day);
-
+            */
           
             tmpData = dp.SearchData(preTime.Value.Year + "/" + preTime.Value.Month + "/" + preTime.Value.Day
                                     , curTime.Value.Year + "/" + curTime.Value.Month + "/" + curTime.Value.Day);
@@ -153,6 +168,8 @@ namespace visualization
                 MessageBox.Show("There is no data in the range!");
                 return;
             }
+
+            dataNumLabel.Text = "Number of Data : " + tmpData.Count;
 
             //tmpData = dp.SearchData("2007/1/2", "2007/1/10");
             dp.CalculateLabelRange(tmpData);
@@ -200,8 +217,20 @@ namespace visualization
 
         private void graph_table_Load(object sender, EventArgs e)
         {
+            
+        }
+
+        private void LabelList_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
+
+        private void alphaBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            graph_table.AlphaChange((int)(alphaBar.Value * 2.55));
+        }
+
+       
 
     }
 }

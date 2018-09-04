@@ -57,7 +57,7 @@ namespace visualization
         public Color label_color_org;
         public Color label_color_select;
         public List<string> label_name;
-        
+        public int max_label_per_row;
         
         public int tmp_select;
         public List<DataLabel> data;
@@ -72,12 +72,19 @@ namespace visualization
 
         public bool isExist = false;
         public bool reLabel = true;
+        public int Alpha = 255;
+        public List<Color> ColorMap;
+
         public Graph()
         {
             InitializeComponent();
             Init();
             pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphInit);
-           
+            ColorMap = new List<Color>();
+            ColorMap.Add(Color.FromArgb(104, 65, 164));
+            ColorMap.Add(Color.FromArgb(61, 194, 171));
+            ColorMap.Add(Color.FromArgb(255, 224, 135));
+            ColorMap.Add(Color.FromArgb(175, 57, 0));
         }
 
         
@@ -90,7 +97,7 @@ namespace visualization
             h = this.Size.Height;
 
             margin_top = 20;
-            margin_bottom = 10;
+            margin_bottom = 50;
             margin_left = 70;
             margin_right = 50;
 
@@ -116,11 +123,12 @@ namespace visualization
             
             class_num = 3;
             label_size = 5;
-            label_height = 10;
-            label_width = 30;
+            label_height = 5;
+            label_width = 10;
             label_font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             data = new List<DataLabel>();
             label_name = new List<string>();
+            max_label_per_row = 10;
 
             label_color_org = Color.Black;
             label_color_select = Color.Red;
@@ -133,7 +141,7 @@ namespace visualization
             axis_length = (w - margin_left - margin_right) / (class_num - 1);
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
 
-            pictureBox1.Size = new Size(this.Width, (int)(this.Height*0.95));
+            pictureBox1.Size = new Size(this.Width, this.Height);
         }
 
 
@@ -179,6 +187,12 @@ namespace visualization
             pictureBox1.Invalidate();
         }
 
+        
+
+        public void NotifyRedraw()
+        {
+            pictureBox1.Invalidate();
+        }
         public void Update()
         {
             g.Clear(this.BackColor);
@@ -254,7 +268,7 @@ namespace visualization
 
         private void GraphInit(object sender, System.Windows.Forms.PaintEventArgs e)
         {
-           
+            
             g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             if(isExist)
@@ -296,8 +310,19 @@ namespace visualization
                     g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
-                if(reLabel)
-                    GenerateLabel(new Point(p1.X-label_width, p2.Y +label_height/2), i);
+                if (reLabel)
+                {
+                    if(class_num>max_label_per_row)
+                    {
+                        if(i%2==0)
+                            GenerateLabel(new Point(p1.X - label_width*5, p2.Y + (int)(label_height*5)), i);
+                        else
+                            GenerateLabel(new Point(p1.X - label_width*5, p2.Y + label_height ), i);
+                    }
+                    else{
+                        GenerateLabel(new Point(p1.X - label_width*5, p2.Y + label_height ), i);
+                    }
+                }
                 g.DrawLine(pen, p1, p2);
             }
 
@@ -310,6 +335,8 @@ namespace visualization
 
             
             Init();
+           // pictureBox1.Size = new Size(this.Width, this.Height);
+           
             //GenerateFakeData();
             //GraphInit();
          
@@ -334,6 +361,7 @@ namespace visualization
         {
            
             data[index].label = new Label();
+            data[index].label.TextAlign = ContentAlignment.MiddleCenter;
             data[index].label.Font = label_font;
             data[index].label.Location = p;
             if (label_name.Count > 0)
@@ -574,6 +602,7 @@ namespace visualization
 
                     Point p1, p2;
                     Pen pen = new Pen(GetTimeColor(i), data_line_size);
+                    
 
                     if (flag_left)
                     {
@@ -605,7 +634,7 @@ namespace visualization
 
 
                     g.DrawLine(pen, p1, p2);
-
+                    //Console.WriteLine(pen.Color.A);
 
 
 
@@ -636,14 +665,20 @@ namespace visualization
                 return data_new;
             float factor = (float)cur / (data_num-1);
 
+            //float diff = (float)(ColorMap.Count-1) / (float)(data_num + 1);
+            //int s = (int)(diff * cur);
+            //factor = diff - (float)s;
+
+            //data_old = ColorMap[s];
+            //data_new = ColorMap[s + 1];
 
             //Console.WriteLine(factor + " ");
             int r=data_old.R-(int)((data_old.R-data_new.R)*factor);
             int g=data_old.G-(int)((data_old.G-data_new.G)*factor);
             int b=data_old.B-(int)((data_old.B-data_new.B)*factor);
 
-            Color newColor = Color.FromArgb(r, g, b);
-
+            Color newColor = Color.FromArgb(Alpha,r, g, b);
+           
             return newColor;
         }
 
@@ -672,11 +707,8 @@ namespace visualization
 
         public void TestFunc()
         {
-            for (int i = 0; i < class_num - 1; i++)
-            {
-                DestroyLineData(i);
-                RedrawAxis(i+1);
-            }
+            Console.WriteLine("Form:" + this.Size.Width);
+            Console.WriteLine("Pic:" + pictureBox1.Size.Width);
 
        
         }
@@ -684,6 +716,14 @@ namespace visualization
         {
             for (int i = 0; i < class_num - 1; i++)
                 DrawDataLine(i);
+        }
+
+
+        public void AlphaChange(int value)
+        {
+            Alpha = value;
+            //Console.WriteLine(Alpha);
+            NotifyRedraw();
         }
     }
     public class DataLabel
