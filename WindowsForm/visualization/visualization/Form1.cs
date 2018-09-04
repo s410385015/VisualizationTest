@@ -19,12 +19,17 @@ namespace visualization
             InitializeComponent();
             //this.WindowState = FormWindowState.Maximized;
 
-            
-           
-            
             dp = new DataProcessing();
-            dp.LoadData();
-
+            
+            //Load by python script
+            ExecutePython e = new ExecutePython();
+            e.Ececute();
+            e.TestFunc();
+            dp.SetByPreprocessData(e.label, e.date, e.data);
+           
+            //Load by C# function
+            //dp.LoadData();
+           
            
         }
 

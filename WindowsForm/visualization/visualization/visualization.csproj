@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataProcessing.cs" />
+    <Compile Include="ExecutePython.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

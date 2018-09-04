@@ -11,3 +11,4 @@ D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\vi
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.Design.dll
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.dll
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\bin\Debug\MetroFramework.Fonts.dll
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.csprojResolveAssemblyReference.cache

@@ -70,6 +70,19 @@ namespace visualization
         }
 
 
+        public void SetByPreprocessData(List<string> _label,List<string> _date,List<List<float>> _data)
+        {
+            label = _label;
+            for (int i = 0; i < _date.Count;i++ )
+            {
+                Data tmp = new Data( _date[i],_data[i]);
+                data.Add(tmp);
+            }
+
+
+            labelNum = label.Count;
+            dataNum = data.Count;
+        }
         public void CalculateLabelRange(List<Data> pick_data)
         {
             labelRange = new List<LabelMinMax>();
