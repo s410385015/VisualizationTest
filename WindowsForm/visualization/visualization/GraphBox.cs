@@ -88,6 +88,9 @@ namespace visualization
         public Rectangle filter;
         public List<bool> isVisible;
 
+        public string date_label_new;
+        public string date_label_old;
+        public bool useDate;
 
         public Graph()
         {
@@ -360,7 +363,25 @@ namespace visualization
 
                     RectangleF drawRect = new RectangleF(p1.X - label_axis_widthOflabel - label_axis_width, p2.Y - j * axis_label_length - label_axis_sizeOflabel , label_axis_widthOflabel, label_axis_heightOflabel);
 
-                    g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                    //Handle the date info
+                    if (data[i].data_label.Count==2)
+                    {
+                        float _f=1.5f;
+                        drawRect = new RectangleF(p1.X - (int)(label_axis_widthOflabel*_f) - label_axis_width, p2.Y - j * axis_label_length - label_axis_sizeOflabel,(int) (label_axis_widthOflabel*_f), label_axis_heightOflabel);
+                        string o=date_label_old;
+                        string n=date_label_new;
+                        if (data[i].data_label[0] > data[i].data_label[1])
+                        {
+                            o = date_label_new;
+                            n = date_label_old;
+                        }
+                        if(j==0)
+                            g.DrawString(o, label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                        else
+                            g.DrawString(n, label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                    }
+                    else
+                        g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
                 if (reLabel)
@@ -977,6 +998,13 @@ namespace visualization
                 pictureBox1.Invalidate();
             }
 
+        }
+
+        public void SetDateInfo(string n,string o,bool _flag)
+        {
+            date_label_new = n;
+            date_label_old = o;
+            _flag = true;
         }
     }
     public class DataLabel

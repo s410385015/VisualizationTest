@@ -17,6 +17,8 @@ namespace visualization
         public int modeValue = 0;
         public int Max_Mode = 3;
         public List<string> mode_name;
+        public string firstLabel = "日期";
+
         public Form1()
         {
             InitializeComponent();
@@ -62,9 +64,13 @@ namespace visualization
 
             LabelView.Location = new Point((int)(this.Width * 0.005),(int)(this.Height*0.6));
             LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height*0.3));
-                     
+
+            LabelView.Items.Add(new ListViewItem(firstLabel));
             foreach (string s in dp.label)
                 LabelView.Items.Add(new ListViewItem(s));
+
+            
+
 
             LabelList.Visible = false;
        
@@ -137,10 +143,16 @@ namespace visualization
 
 
             List<int> select_index = new List<int>();
-           
 
+
+            bool useDateInfo=false;
             foreach (int i in LabelView.CheckedIndices)
-                select_index.Add(i);
+            {
+                if (i != 0)
+                    select_index.Add(i-1);
+                else
+                    useDateInfo = true;
+            }
 
             if(select_index.Count<2)
             {
@@ -187,6 +199,7 @@ namespace visualization
 
             List<List<float>> tmpdata = new List<List<float>>();
 
+           
             for (int i = 0; i < tmpData.Count; i++)
             {
                 List<float> tmp = new List<float>();
@@ -198,11 +211,30 @@ namespace visualization
 
 
             List<List<float>> label_axis = new List<List<float>>();
+            
+            
+            
 
             foreach (int index in select_index)
                 label_axis.Add(dp.labelRange[index].value);
 
-            graph_table.InsertData(select_index.Count, tmpData.Count, label_axis, tmpdata, label_name);
+
+
+            //insert date 
+            int add = 0;
+            if (useDateInfo)
+            {
+                for (int i = 0; i < tmpdata.Count; i++)
+                    tmpdata[i].Insert(0, i + 1);
+                label_axis.Insert(0, dp.GetDateLabel(tmpdata.Count));
+                label_name.Insert(0, firstLabel);
+                add = 1;
+                graph_table.SetDateInfo(tmpData[tmpData.Count-1].time, tmpData[0].time, true);
+            }else
+            {
+                graph_table.SetDateInfo("", "", false);
+            }
+            graph_table.InsertData(select_index.Count+add, tmpData.Count, label_axis, tmpdata, label_name);
             graph_table.isExist = true;
             graph_table.drawGraph();
         }

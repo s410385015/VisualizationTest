@@ -129,6 +129,21 @@ namespace visualization
             }
         }
 
+        public List<float> GetDate(int n)
+        {
+            List<float> f = new List<float>();
+            for (int i = 1; i <= n; i++)
+                f.Add(i);
+
+            return f;
+        }
+
+        public List<float> GetDateLabel(int n)
+        {
+            LabelMinMax lmm = new LabelMinMax(n + 1, 0, 1,false);
+            return lmm.value;
+        }
+
         //Calculate the min and max value of the each axis by whole data;
         public void CalculateLabelRange()
         {
@@ -206,19 +221,30 @@ namespace visualization
         public int rangeBetween;
         public List<float> value;
         public float i;
-        public LabelMinMax(float x,float n,int r)
+        public LabelMinMax(float x,float n,int r,bool flag=true)
         {
+            max = x;
             min=n;
-            max=x;
+            
             rangeBetween = r;
 
             i = (max - min) / r;
 
             value = new List<float>();
 
-            for (int j = -1; j <= r+1; j++)
-                value.Add(min + (i * j));
+            if (flag)
+            {
+                for (int j = -1; j <= r + 1; j++)
+                    value.Add(min + (i * j));
+            }
+            else
+            {
+                for (int j = 0; j <= r ; j++)
+                    value.Add(min + (i * j));
+            }
         }
+
+        
 
         public void Printf()
         {
