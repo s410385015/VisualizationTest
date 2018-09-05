@@ -76,11 +76,24 @@ namespace visualization
         public float alpha_range = 150;
         public List<Color> ColorMap;
         public int mode = 0;
+
+        public Point cur_Pos;
+        public Point start_Pos;
+        public bool isMouse = false;
+        public Color filter_color_out;
+        public Color filter_color_in;
+        public int filter_bound_size;
+        public int filter_size;
+        public int filter_select;
+        public Rectangle filter;
+        public List<bool> isVisible;
+
+
         public Graph()
         {
             InitializeComponent();
             Init();
-            pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphInit);
+            pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.Graph_Paint);
             ColorMap = new List<Color>();
             ColorMap.Add(Color.FromArgb(255, 0, 255));
             ColorMap.Add(Color.FromArgb(0, 0, 255));
@@ -144,6 +157,13 @@ namespace visualization
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
 
             pictureBox1.Size = new Size(this.Width, this.Height);
+
+            filter_color_in = Color.White;
+            filter_color_out = Color.Black;
+            filter_bound_size = 2;
+            filter_size = 10;
+            filter_select = -1;
+            isVisible = new List<bool>();
         }
 
         public void SetMode(int m)
@@ -186,7 +206,8 @@ namespace visualization
                 data.Add(datatmp);
             }
 
-         
+            for(int i=0;i<dn;i++)
+                isVisible.Add(true);
         }
 
         public void drawGraph()
@@ -206,9 +227,30 @@ namespace visualization
             g.Clear(this.BackColor);
             //GraphInit();
             DrawAxis();
-            for (int i = 0; i < class_num - 1; i++)
-                DrawDataLine(i);
-            
+            if (Filter_SearchForAxis())
+            {
+               
+                Rectangle r = getRectangle();
+                r = RestrictFilter(r);
+                filter = r;
+
+                Rectangle r1 = getRectangle(filter_bound_size);
+                r = RestrictFilter(r);
+                g.FillRectangle(new SolidBrush(filter_color_in), r.Location.X, r.Location.Y, r.Width, r.Height);
+
+                
+                for (int i = 0; i < class_num - 1; i++)
+                    DrawDataLine(i);
+                DrawFilter(r,r1);
+            }
+            else
+            {
+                if(filter_select!=-1)
+                    FilterDestory();
+                for (int i = 0; i < class_num - 1; i++)
+                    DrawDataLine(i);
+
+            }
         }
         
         public void Reset()
@@ -274,18 +316,21 @@ namespace visualization
            
         }
 
-        private void GraphInit(object sender, System.Windows.Forms.PaintEventArgs e)
+        private void Graph_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
             
             g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            if(isExist)
+            if (isExist)
                 Update();
+                
+            
             //g = CreateGraphics();
             //
             //g.DrawRectangle(new Pen(axis_color, axis_size), new Rectangle(50, 50, 100, 100));
         }
 
+       
         public void DrawAxis()
         {
 
@@ -358,12 +403,6 @@ namespace visualization
             //g.DrawLine(new Pen(Color.Black,20),new Point(0,0), new Point(100,100));
         }
 
-        private void Graph_Paint(object sender, PaintEventArgs e)
-        {
-           // DrawAxis();
-            //for (int i = 0; i < class_num-1; i++)
-                //DrawDataLine(i);
-        }
 
         public void GenerateLabel(Point p,int index)
         {
@@ -573,7 +612,42 @@ namespace visualization
         }
 
 
+        public void InFilter(int index)
+        {
+            if (index == -1)
+                return;
+            startX = margin_left;
+            startY = margin_top;
+            bool flag = true;
+            if (data[index].data_label.Count > 1)
+                flag = (data[index].data_label[1] > data[index].data_label[0]) ? (true) : (false);
+            int _x = startX + index * axis_length;
+            float _range = Math.Abs(data[index].data_label[0] - data[index].data_label[data[index].data_label.Count - 1]);
 
+            for (int i = 0; i < data_num; i++)
+            {
+                Point p1;
+                if (flag)
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[0]) / _range);
+                    int offset = (int)(axis_height * factor);
+                    p1 = new Point(_x, startY + axis_height - offset);
+                }
+                else
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[data[index].data_label.Count - 1]) / _range);
+                    int offset = (int)(axis_height * factor);
+                    p1 = new Point(_x, startY + offset);
+                }
+
+
+                Console.WriteLine(p1.Y + " " + filter.Top + " " + filter.Bottom);
+                if (p1.Y > filter.Bottom || p1.Y < filter.Top)
+                    isVisible[i] = false;
+                else
+                    isVisible[i] = true;
+            }
+        }
 
         public void DrawDataLine(int index)
         {
@@ -585,7 +659,7 @@ namespace visualization
 
 
                 //true : bottom to top
-                //false: up to bottom
+                //false: top to bottom
                 bool flag_left = true;
                 bool flag_right = true;
 
@@ -607,7 +681,8 @@ namespace visualization
 
                 for (int i = 0; i < data_num; i++)
                 {
-
+                    if (!isVisible[i])
+                        continue;
                     Point p1, p2;
                     Pen pen = new Pen(GetTimeColor(i), data_line_size);
                     
@@ -641,10 +716,11 @@ namespace visualization
                     }
 
 
+                    
                     g.DrawLine(pen, p1, p2);
                     //Console.WriteLine(pen.Color.A);
 
-
+                    
 
                 }
             }
@@ -795,6 +871,112 @@ namespace visualization
             Alpha = value;
             //Console.WriteLine(Alpha);
             NotifyRedraw();
+        }
+
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            
+            start_Pos = cur_Pos = e.Location;
+            isMouse = true;
+            pictureBox1.Invalidate();
+        }
+
+       
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+
+            if (isMouse)
+            {
+                cur_Pos = e.Location;
+                pictureBox1.Invalidate();
+            }
+        }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (isMouse)
+            {
+                InFilter(filter_select);
+                isMouse = false;
+                pictureBox1.Invalidate();
+            }
+        }
+
+        public void DrawFilter(Rectangle r,Rectangle r1)
+        {
+            
+                   
+                    g.FillRectangle(new SolidBrush(filter_color_out), r.Location.X, r.Location.Y, r.Width, r.Height);
+              
+                    g.FillRectangle(new SolidBrush(filter_color_in), r1.Location.X, r1.Location.Y, r1.Width, r1.Height);
+            
+
+              
+        }
+
+        private void FilterDestory()
+        {
+            filter_select = -1;
+            for (int i = 0; i < isVisible.Count; i++)
+                isVisible[i] = true;
+        }
+
+        private Rectangle getRectangle(int offset=0)
+        {
+            if (cur_Pos.Y-start_Pos.Y> 0)
+            {
+                return new Rectangle(
+                  start_Pos.X + offset, start_Pos.Y + offset, filter_size - 2 * offset, (cur_Pos.Y - start_Pos.Y) - 2 * offset);
+            }
+            else
+            {
+                return new Rectangle(
+                  start_Pos.X + offset, cur_Pos.Y + offset, filter_size - 2 * offset, (start_Pos.Y - cur_Pos.Y) - 2 * offset);
+            }
+        }
+
+        private Rectangle RestrictFilter(Rectangle r)
+        {
+            startY = margin_top;
+
+            if (r.Top < startY)
+                r.Location = new Point(r.Left,startY+filter_bound_size);
+
+            if (r.Bottom > startY + axis_height)
+                r.Height = (startY + axis_height) - r.Top - filter_bound_size;
+
+
+
+            return r;
+        }
+
+        public bool Filter_SearchForAxis()
+        {
+            startX = margin_left;
+
+            for (int i = 0; i < class_num; i++)
+            {
+                int _x = startX + i * axis_length;
+                if (Math.Abs(start_Pos.X - _x) <= filter_size*2)
+                {
+                    start_Pos.X = _x - filter_size / 2;
+                    filter_select = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            MouseEventArgs me = (MouseEventArgs) e;
+            if ( me.Button== System.Windows.Forms.MouseButtons.Right)
+            {
+                cur_Pos = start_Pos = new Point(0, 0);
+                pictureBox1.Invalidate();
+            }
+
         }
     }
     public class DataLabel
