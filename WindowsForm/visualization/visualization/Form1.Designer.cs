@@ -36,6 +36,7 @@
             this.dataNumLabel = new MetroFramework.Controls.MetroLabel();
             this.metroScrollBar1 = new MetroFramework.Controls.MetroScrollBar();
             this.alphaBar = new MetroFramework.Controls.MetroScrollBar();
+            this.mode = new MetroFramework.Controls.MetroLabel();
             this.graph_table = new visualization.Graph();
             this.SuspendLayout();
             // 
@@ -85,7 +86,7 @@
             // 
             this.LabelList.FormattingEnabled = true;
             this.LabelList.ItemHeight = 15;
-            this.LabelList.Location = new System.Drawing.Point(602, 712);
+            this.LabelList.Location = new System.Drawing.Point(813, 712);
             this.LabelList.MultiColumn = true;
             this.LabelList.Name = "LabelList";
             this.LabelList.ScrollAlwaysVisible = true;
@@ -147,6 +148,16 @@
             this.alphaBar.UseSelectable = true;
             this.alphaBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.alphaBar_Scroll);
             // 
+            // mode
+            // 
+            this.mode.AutoSize = true;
+            this.mode.Location = new System.Drawing.Point(530, 711);
+            this.mode.Name = "mode";
+            this.mode.Size = new System.Drawing.Size(193, 20);
+            this.mode.TabIndex = 256;
+            this.mode.Text = "Mode : Gradient by two color ";
+            this.mode.Click += new System.EventHandler(this.mode_Click);
+            // 
             // graph_table
             // 
             this.graph_table.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
@@ -164,6 +175,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.mode);
             this.Controls.Add(this.alphaBar);
             this.Controls.Add(this.metroScrollBar1);
             this.Controls.Add(this.dataNumLabel);
@@ -197,6 +209,7 @@
         private MetroFramework.Controls.MetroLabel dataNumLabel;
         private MetroFramework.Controls.MetroScrollBar metroScrollBar1;
         private MetroFramework.Controls.MetroScrollBar alphaBar;
+        private MetroFramework.Controls.MetroLabel mode;
        
 
     }

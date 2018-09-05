@@ -14,6 +14,9 @@ namespace visualization
     {
 
         public DataProcessing dp;
+        public int modeValue = 0;
+        public int Max_Mode = 3;
+        public List<string> mode_name;
         public Form1()
         {
             InitializeComponent();
@@ -31,7 +34,10 @@ namespace visualization
             //Load by C# function
             dp.LoadData();
 
-          
+            mode_name = new List<string>();
+            mode_name.Add("Mode : Gradient by two colors.");
+            mode_name.Add("Mode : Gradient by alpha.");
+            mode_name.Add("Mode : Gradient by multiple colors.");
         }
 
 
@@ -70,6 +76,8 @@ namespace visualization
 
             alphaBar.Location = new Point((int)(this.Width - alphaBar.Width *1.1), (int)(this.Height * 0.05));
             alphaBar.Value = 100;
+
+            mode.Location = new Point((int)(this.Width - alphaBar.Width * 1.1 - mode.Width * 1.5), (int)(this.Height * 0.045));
         }
         
       
@@ -228,6 +236,18 @@ namespace visualization
         private void alphaBar_Scroll(object sender, ScrollEventArgs e)
         {
             graph_table.AlphaChange((int)(alphaBar.Value * 2.55));
+        }
+
+        private void mode_Click(object sender, EventArgs e)
+        {
+            modeValue++;
+            int m = modeValue  % Max_Mode;
+
+            
+            mode.Text = mode_name[m];
+            graph_table.SetMode(m);
+            
+
         }
 
        

@@ -73,18 +73,20 @@ namespace visualization
         public bool isExist = false;
         public bool reLabel = true;
         public int Alpha = 255;
+        public float alpha_range = 150;
         public List<Color> ColorMap;
-
+        public int mode = 0;
         public Graph()
         {
             InitializeComponent();
             Init();
             pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphInit);
             ColorMap = new List<Color>();
-            ColorMap.Add(Color.FromArgb(104, 65, 164));
-            ColorMap.Add(Color.FromArgb(61, 194, 171));
-            ColorMap.Add(Color.FromArgb(255, 224, 135));
-            ColorMap.Add(Color.FromArgb(175, 57, 0));
+            ColorMap.Add(Color.FromArgb(255, 0, 255));
+            ColorMap.Add(Color.FromArgb(0, 0, 255));
+            ColorMap.Add(Color.FromArgb(255, 180, 0));
+            //ColorMap.Add(Color.FromArgb(255, 128, 0));
+            ColorMap.Add(Color.FromArgb(255, 0, 0));
         }
 
         
@@ -142,6 +144,12 @@ namespace visualization
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
 
             pictureBox1.Size = new Size(this.Width, this.Height);
+        }
+
+        public void SetMode(int m)
+        {
+            mode=m;
+            NotifyRedraw();
         }
 
 
@@ -663,22 +671,85 @@ namespace visualization
         {
             if (data_num - 1 == 0)
                 return data_new;
-            float factor = (float)cur / (data_num-1);
 
-            //float diff = (float)(ColorMap.Count-1) / (float)(data_num + 1);
-            //int s = (int)(diff * cur);
-            //factor = diff - (float)s;
+            Color newColor=Color.Red;
 
-            //data_old = ColorMap[s];
-            //data_new = ColorMap[s + 1];
 
-            //Console.WriteLine(factor + " ");
-            int r=data_old.R-(int)((data_old.R-data_new.R)*factor);
-            int g=data_old.G-(int)((data_old.G-data_new.G)*factor);
-            int b=data_old.B-(int)((data_old.B-data_new.B)*factor);
+            switch(mode)
+            {
+                case 0:
+                    float factor = (float)cur / (data_num - 1);
+                    int r=Math.Abs(data_old.R-(int)((data_old.R-data_new.R)*factor));
+                    int g=Math.Abs(data_old.G-(int)((data_old.G-data_new.G)*factor));
+                    int b=Math.Abs(data_old.B-(int)((data_old.B-data_new.B)*factor));
+                    newColor = Color.FromArgb(Alpha,r, g, b);
+                    break;
+                case 1:
+                     alpha_range = Alpha;
+                    if(cur>=data_num/2)
+                    {
+                        if (data_num / 2 - 1 == 0)
+                            return Color.Red;
+                        float a = (alpha_range / (float)Math.Round((float)data_num / 2 - 1))*(cur-data_num/2);
+                        newColor=Color.FromArgb((int)((255-alpha_range)+a),Color.Red);
+                    }
+                    else
+                    {
+                        if (data_num / 2 - 1 == 0)
+                            return Color.Blue;
+                        float a = alpha_range-(alpha_range / (data_num / 2 - 1))*(cur);
+                        newColor = Color.FromArgb((int)((255 - alpha_range) + a), Color.Blue);
+                    }
+                    break;
+                case 2:
+                     float diff;
 
-            Color newColor = Color.FromArgb(Alpha,r, g, b);
-           
+                    if (data_num < ColorMap.Count)
+                        diff = 1;
+                    else
+                        diff=(float)(ColorMap.Count) / (float)(data_num);
+            
+                    int s = (int)(diff * cur);
+                    float _factor = diff*cur - (float)s;
+
+                    Color _old = ColorMap[s];
+                    Color _new;
+                    if(s+1==ColorMap.Count)
+                        _new = ColorMap[s];
+                    else
+                        _new = ColorMap[s+1];
+                    int _r=Math.Abs(_old.R-(int)((_old.R-_new.R)*_factor));
+                    int _g=Math.Abs(_old.G-(int)((_old.G-_new.G)*_factor));
+                    int _b=Math.Abs(_old.B-(int)((_old.B-_new.B)*_factor));
+                    newColor = Color.FromArgb(Alpha,_r, _g, _b);
+                    break;
+            }
+                
+            /*
+            float diff;
+
+            if (data_num < ColorMap.Count)
+                diff = 1;
+            else
+                diff=(float)(ColorMap.Count) / (float)(data_num);
+            
+            int s = (int)(diff * cur);
+            float factor = diff*cur - (float)s;
+
+            data_old = ColorMap[s];
+            if(s+1==ColorMap.Count)
+                data_new = ColorMap[s];
+            else
+                data_new = ColorMap[s+1];
+            */
+
+          
+
+
+            
+
+            
+
             return newColor;
         }
 
