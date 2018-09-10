@@ -184,6 +184,15 @@ namespace visualization
                   lmm.Printf();
         }
 
+        public List<float> ReturnRowData(int index)
+        {
+            List<float> f = new List<float>();
+
+            foreach (Data d in data)
+                f.Add(d.data[index]);
+
+            return f;
+        }
 
         //Search for the data that meet the conditions
         public List<Data> SearchData(string d1,string d2)

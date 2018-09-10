@@ -28,16 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.LabelView = new MetroFramework.Controls.MetroListView();
             this.updateBtn = new MetroFramework.Controls.MetroButton();
             this.preTime = new MetroFramework.Controls.MetroDateTime();
             this.LabelList = new System.Windows.Forms.ListBox();
             this.curTime = new MetroFramework.Controls.MetroDateTime();
             this.dataNumLabel = new MetroFramework.Controls.MetroLabel();
-            this.metroScrollBar1 = new MetroFramework.Controls.MetroScrollBar();
             this.alphaBar = new MetroFramework.Controls.MetroScrollBar();
             this.mode = new MetroFramework.Controls.MetroLabel();
+            this.updateScatterPlot = new MetroFramework.Controls.MetroButton();
+            this.LabelView2 = new MetroFramework.Controls.MetroListView();
+            this.RightClickMenu = new MetroFramework.Controls.MetroContextMenu(this.components);
+            this.graphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.correlationCoefficientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scatterPlot = new visualization.ScatterPlot();
             this.graph_table = new visualization.Graph();
+            this.RightClickMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // LabelView
@@ -47,7 +54,7 @@
             this.LabelView.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.LabelView.ForeColor = System.Drawing.SystemColors.WindowText;
             this.LabelView.FullRowSelect = true;
-            this.LabelView.Location = new System.Drawing.Point(12, 436);
+            this.LabelView.Location = new System.Drawing.Point(12, 453);
             this.LabelView.Name = "LabelView";
             this.LabelView.OwnerDraw = true;
             this.LabelView.Size = new System.Drawing.Size(121, 225);
@@ -116,20 +123,6 @@
             this.dataNumLabel.Size = new System.Drawing.Size(0, 0);
             this.dataNumLabel.TabIndex = 9;
             // 
-            // metroScrollBar1
-            // 
-            this.metroScrollBar1.LargeChange = 10;
-            this.metroScrollBar1.Location = new System.Drawing.Point(0, 0);
-            this.metroScrollBar1.Maximum = 100;
-            this.metroScrollBar1.Minimum = 0;
-            this.metroScrollBar1.MouseWheelBarPartitions = 10;
-            this.metroScrollBar1.Name = "metroScrollBar1";
-            this.metroScrollBar1.Orientation = MetroFramework.Controls.MetroScrollOrientation.Vertical;
-            this.metroScrollBar1.ScrollbarSize = 10;
-            this.metroScrollBar1.Size = new System.Drawing.Size(10, 200);
-            this.metroScrollBar1.TabIndex = 10;
-            this.metroScrollBar1.UseSelectable = true;
-            // 
             // alphaBar
             // 
             this.alphaBar.LargeChange = 10;
@@ -140,7 +133,7 @@
             this.alphaBar.Name = "alphaBar";
             this.alphaBar.Orientation = MetroFramework.Controls.MetroScrollOrientation.Horizontal;
             this.alphaBar.ScrollbarSize = 15;
-            this.alphaBar.Size = new System.Drawing.Size(200, 15);
+            this.alphaBar.Size = new System.Drawing.Size(300, 15);
             this.alphaBar.TabIndex = 255;
             this.alphaBar.Theme = MetroFramework.MetroThemeStyle.Dark;
             this.alphaBar.UseBarColor = true;
@@ -157,6 +150,67 @@
             this.mode.TabIndex = 256;
             this.mode.Text = "Mode : Gradient by two color ";
             this.mode.Click += new System.EventHandler(this.mode_Click);
+            // 
+            // updateScatterPlot
+            // 
+            this.updateScatterPlot.Location = new System.Drawing.Point(729, 721);
+            this.updateScatterPlot.Name = "updateScatterPlot";
+            this.updateScatterPlot.Size = new System.Drawing.Size(75, 23);
+            this.updateScatterPlot.TabIndex = 257;
+            this.updateScatterPlot.Text = "Update";
+            this.updateScatterPlot.UseSelectable = true;
+            this.updateScatterPlot.Click += new System.EventHandler(this.metroButton1_Click_1);
+            // 
+            // LabelView2
+            // 
+            this.LabelView2.AutoArrange = false;
+            this.LabelView2.CheckBoxes = true;
+            this.LabelView2.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.LabelView2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.LabelView2.FullRowSelect = true;
+            this.LabelView2.Location = new System.Drawing.Point(377, 404);
+            this.LabelView2.Name = "LabelView2";
+            this.LabelView2.OwnerDraw = true;
+            this.LabelView2.Size = new System.Drawing.Size(121, 225);
+            this.LabelView2.TabIndex = 259;
+            this.LabelView2.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.LabelView2.UseCompatibleStateImageBehavior = false;
+            this.LabelView2.UseCustomBackColor = true;
+            this.LabelView2.UseCustomForeColor = true;
+            this.LabelView2.UseSelectable = true;
+            this.LabelView2.UseStyleColors = true;
+            this.LabelView2.View = System.Windows.Forms.View.List;
+            // 
+            // RightClickMenu
+            // 
+            this.RightClickMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.RightClickMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.graphToolStripMenuItem,
+            this.correlationCoefficientToolStripMenuItem});
+            this.RightClickMenu.Name = "metroContextMenu1";
+            this.RightClickMenu.Size = new System.Drawing.Size(241, 56);
+            // 
+            // graphToolStripMenuItem
+            // 
+            this.graphToolStripMenuItem.Name = "graphToolStripMenuItem";
+            this.graphToolStripMenuItem.Size = new System.Drawing.Size(240, 26);
+            this.graphToolStripMenuItem.Text = "Graph";
+            this.graphToolStripMenuItem.Click += new System.EventHandler(this.graphToolStripMenuItem_Click);
+            // 
+            // correlationCoefficientToolStripMenuItem
+            // 
+            this.correlationCoefficientToolStripMenuItem.Name = "correlationCoefficientToolStripMenuItem";
+            this.correlationCoefficientToolStripMenuItem.Size = new System.Drawing.Size(240, 26);
+            this.correlationCoefficientToolStripMenuItem.Text = "Correlation Coefficient";
+            this.correlationCoefficientToolStripMenuItem.Click += new System.EventHandler(this.correlationCoefficientToolStripMenuItem_Click);
+            // 
+            // scatterPlot
+            // 
+            this.scatterPlot.BackColor = System.Drawing.SystemColors.Control;
+            this.scatterPlot.Location = new System.Drawing.Point(594, 479);
+            this.scatterPlot.Name = "scatterPlot";
+            this.scatterPlot.Size = new System.Drawing.Size(150, 150);
+            this.scatterPlot.TabIndex = 258;
             // 
             // graph_table
             // 
@@ -175,9 +229,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.LabelView2);
+            this.Controls.Add(this.scatterPlot);
+            this.Controls.Add(this.updateScatterPlot);
             this.Controls.Add(this.mode);
             this.Controls.Add(this.alphaBar);
-            this.Controls.Add(this.metroScrollBar1);
             this.Controls.Add(this.dataNumLabel);
             this.Controls.Add(this.preTime);
             this.Controls.Add(this.curTime);
@@ -193,6 +249,8 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.Form1_DragOver);
             this.DragLeave += new System.EventHandler(this.Form1_DragLeave);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
+            this.RightClickMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -207,9 +265,14 @@
         private System.Windows.Forms.ListBox LabelList;
         private MetroFramework.Controls.MetroDateTime curTime;
         private MetroFramework.Controls.MetroLabel dataNumLabel;
-        private MetroFramework.Controls.MetroScrollBar metroScrollBar1;
         private MetroFramework.Controls.MetroScrollBar alphaBar;
         private MetroFramework.Controls.MetroLabel mode;
+        private MetroFramework.Controls.MetroButton updateScatterPlot;
+        private ScatterPlot scatterPlot;
+        private MetroFramework.Controls.MetroListView LabelView2;
+        private MetroFramework.Controls.MetroContextMenu RightClickMenu;
+        private System.Windows.Forms.ToolStripMenuItem graphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem correlationCoefficientToolStripMenuItem;
        
 
     }

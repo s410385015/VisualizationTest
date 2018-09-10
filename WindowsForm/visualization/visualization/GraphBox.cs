@@ -438,7 +438,7 @@ namespace visualization
                 data[index].label.Text = "Label:" + index.ToString();
            
             data[index].label.Name = index.ToString();
-            data[index].label.Click += new EventHandler(label_Click);
+            data[index].label.MouseDown += new MouseEventHandler(label_Click);
             data[index].label.BringToFront();
             pictureBox1.Controls.Add(data[index].label);
         }
@@ -928,9 +928,9 @@ namespace visualization
         {
             
                    
-                    g.FillRectangle(new SolidBrush(filter_color_out), r.Location.X, r.Location.Y, r.Width, r.Height);
+            g.FillRectangle(new SolidBrush(filter_color_out), r.Location.X, r.Location.Y, r.Width, r.Height);
               
-                    g.FillRectangle(new SolidBrush(filter_color_in), r1.Location.X, r1.Location.Y, r1.Width, r1.Height);
+            g.FillRectangle(new SolidBrush(filter_color_in), r1.Location.X, r1.Location.Y, r1.Width, r1.Height);
             
 
               

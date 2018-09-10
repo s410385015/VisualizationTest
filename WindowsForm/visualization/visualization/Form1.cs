@@ -18,11 +18,15 @@ namespace visualization
         public int Max_Mode = 3;
         public List<string> mode_name;
         public string firstLabel = "日期";
+        public List<List<Control>> Panel_Layer; 
+        
 
         public Form1()
         {
             InitializeComponent();
-            
+            TestFunc();
+            Panel_Layer=new List<List<Control>>();
+
             dp = new DataProcessing();
             
             //Load by python script
@@ -42,15 +46,50 @@ namespace visualization
             mode_name.Add("Mode : Gradient by multiple colors.");
         }
 
+        public void TestFunc()
+        {
+            List<float> x = new List<float>();
+            List<float> y = new List<float>();
+            x.Add(43);
+            x.Add(21);
+            x.Add(25);
+            x.Add(42);
+            x.Add(57);
+            x.Add(59);
+           
+
+            y.Add(99);
+            y.Add(65);
+            y.Add(79);
+            y.Add(75);
+            y.Add(87);
+            y.Add(81);
+
+            CorrelationCoefficient cc = new CorrelationCoefficient(x, y);
+
+            Console.WriteLine(cc.CalculateCC().ToString());
+        }
+
+
 
         //Redraw the control components to the correspond size
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-          
-            this.BackColor = Color.Black;
-            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height*0.48));
-            graph_table.Location = new Point(0, graph_table.Location.Y);
+
+            initFirstLayer();
+            initSecondLayer();
+            ShowLayer(0);
+
+           
+
+        }
+        
+
+        public void initFirstLayer()
+        {
+            //this.BackColor = Color.Black;
+            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
+            graph_table.Location = new Point(0, (int)(this.Height * 0.09));
 
 
             /*
@@ -62,31 +101,84 @@ namespace visualization
             */
 
 
-            LabelView.Location = new Point((int)(this.Width * 0.005),(int)(this.Height*0.6));
-            LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height*0.3));
+            LabelView.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+            LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
 
             LabelView.Items.Add(new ListViewItem(firstLabel));
             foreach (string s in dp.label)
                 LabelView.Items.Add(new ListViewItem(s));
 
-            
+
 
 
             LabelList.Visible = false;
-       
+
             graph_table.Init();
 
-            preTime.Location = new Point(preTime.Location.X, this.Height - preTime.Height*2);
+            preTime.Location = new Point(preTime.Location.X, this.Height - preTime.Height * 2);
             curTime.Location = new Point(curTime.Location.X, this.Height - curTime.Height * 2);
-            updateBtn.Location = new Point(this.Width - (int)(updateBtn.Width * 1.5), (int)(this.Height*0.94));
+            updateBtn.Location = new Point(this.Width - (int)(updateBtn.Width * 1.5), (int)(this.Height * 0.94));
 
-            alphaBar.Location = new Point((int)(this.Width - alphaBar.Width *1.1), (int)(this.Height * 0.05));
+            alphaBar.Location = new Point((int)(this.Width - alphaBar.Width * 1.1), (int)(this.Height * 0.05));
             alphaBar.Value = 100;
 
-            mode.Location = new Point((int)(this.Width - alphaBar.Width * 1.1 - mode.Width * 1.5), (int)(this.Height * 0.045));
+            mode.Location = new Point((int)(this.Width - alphaBar.Width * 1.1 - mode.Width * 1.3), (int)(this.Height * 0.045));
+
+
+            List<Control> lc = new List<Control>();
+            lc.Add(graph_table);
+            lc.Add(preTime);
+            lc.Add(curTime);
+            lc.Add(updateBtn);
+            lc.Add(alphaBar);
+            lc.Add(mode);
+            lc.Add(LabelView);
+
+            Panel_Layer.Add(lc);
         }
         
-      
+
+        public void initSecondLayer()
+        {
+
+            int marg;
+
+            scatterPlot.Size = new Size((int)(this.Width * 0.7), (int)(this.Height * 0.8));
+            scatterPlot.Location = new Point(0, (int)(this.Height * 0.1));
+
+            LabelView2.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
+            LabelView2.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.1));
+            updateScatterPlot.Location = new Point(this.Width - (int)(updateBtn.Width * 1.5), (int)(this.Height * 0.94));
+
+            foreach (string s in dp.label)
+                LabelView2.Items.Add(new ListViewItem(s));
+
+
+
+            List<Control> lc = new List<Control>();
+            lc.Add(scatterPlot);
+            lc.Add(LabelView2);
+            lc.Add(updateScatterPlot);
+
+            Panel_Layer.Add(lc);
+            
+        }
+
+        public void ShowLayer(int index)
+        {
+            for(int i=0;i<Panel_Layer.Count;i++)
+            {
+                foreach(Control c in Panel_Layer[i])
+                {
+                    if (i == index)
+                        c.Visible = true;
+                    else
+                        c.Visible = false;
+                }
+            }
+        }
+
+
         /*
         public void HorizontalListbox()
         {
@@ -280,6 +372,68 @@ namespace visualization
             graph_table.SetMode(m);
             
 
+        }
+
+        private void metroButton1_Click_1(object sender, EventArgs e)
+        {
+            scatterPlot.Rest();
+            scatterPlot.isExist = true;
+            List<int> select_index = new List<int>();
+            foreach (int i in LabelView2.CheckedIndices)
+                select_index.Add(i);
+            
+            if(select_index.Count>7||select_index.Count<2)
+            {
+                MessageBox.Show("Numbers of category must be between 2 to 7");
+                return;
+            }
+
+
+            List<string> label_name = new List<string>();
+            List<List<float>> data=new List<List<float>>();
+            foreach (int i in select_index)
+            {
+                label_name.Add(dp.label[i]);
+                data.Add(dp.ReturnRowData(i));
+
+            }
+
+            scatterPlot.Init(select_index.Count);
+            scatterPlot.SetLabelData(data, label_name);
+
+            
+            scatterPlot.NotifyRedraw();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                {
+                    RightClickMenu.Show(this, new Point(e.X, e.Y));//places the menu at the pointer position
+                }
+                break;
+            }
+        }
+
+        private void graphToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Text = "Graph";
+            this.Invalidate();
+            ShowLayer(0);
+        }
+
+        private void correlationCoefficientToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Text = "Correlation Coefficient";
+            this.Invalidate();
+            ShowLayer(1);
         }
 
        
