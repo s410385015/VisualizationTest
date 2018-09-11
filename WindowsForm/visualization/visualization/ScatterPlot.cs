@@ -39,12 +39,14 @@ namespace visualization
         private SolidBrush cc_brush;
         private int category_size;
         private SolidBrush category_brush;
-        private SolidBrush data_brush;
+        private Color data_brush;
         private StringFormat category_format;
         private int data_size;
         private List<List<float>> label_data;
         private List<LabelInfo> label_info;
         public bool isExist = false;
+
+        public int alpha = 100;
         public ScatterPlot()
         {
             InitializeComponent();
@@ -94,7 +96,7 @@ namespace visualization
             category_brush = new SolidBrush(Color.Black);
             category_format = new StringFormat();
 
-            data_brush = new SolidBrush(Color.Blue);
+            data_brush = Color.Blue;
             data_size = 5;
             label_data = new List<List<float>>();
             label_info = new List<LabelInfo>();
@@ -189,9 +191,17 @@ namespace visualization
             int _x=(int)Math.Round(per_width*(1-box_horizontal_factor*2)*fx);
             int _y=(int)Math.Round(per_height*(1-box_vertical_facotr*2)*fy);
 
-            g.FillEllipse(data_brush,p.X+_x,p.Y-_y,data_size,data_size);
+
+            SolidBrush sb = new SolidBrush(Color.FromArgb(alpha,data_brush));
+            g.FillEllipse(sb,p.X+_x,p.Y-_y,data_size,data_size);
         }
 
+
+        public void AlphaChange(int a)
+        {
+            alpha = a;
+            NotifyRedraw();
+        }
 
         public void DrawCCText(string s,Point p)
         {

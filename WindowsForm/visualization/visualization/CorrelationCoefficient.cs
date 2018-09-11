@@ -43,4 +43,18 @@ namespace visualization
             
         }
     }
+
+    public class CCGroup
+    {
+        public int indexA;
+        public int indexB;
+        public float value;
+
+        public CCGroup(int a,int b,float cc)
+        {
+            indexA = a;
+            indexB = b;
+            value = cc;
+        }
+    }
 }

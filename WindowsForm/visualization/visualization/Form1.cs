@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace visualization
 {
@@ -18,8 +19,10 @@ namespace visualization
         public int Max_Mode = 3;
         public List<string> mode_name;
         public string firstLabel = "日期";
-        public List<List<Control>> Panel_Layer; 
-        
+        public List<List<Control>> Panel_Layer;
+        public List<CCGroup> ccLabel;
+        public List<string> ccLabel_name;
+        public bool first_layer_LabelView_mode;
 
         public Form1()
         {
@@ -44,8 +47,15 @@ namespace visualization
             mode_name.Add("Mode : Gradient by two colors.");
             mode_name.Add("Mode : Gradient by alpha.");
             mode_name.Add("Mode : Gradient by multiple colors.");
+
+            ccLabel = new List<CCGroup>();
+            ccLabel_name = new List<string>();
+            LoadCC();
+
+            
         }
 
+        
         public void TestFunc()
         {
             List<float> x = new List<float>();
@@ -70,16 +80,19 @@ namespace visualization
             Console.WriteLine(cc.CalculateCC().ToString());
         }
 
-
+        
 
         //Redraw the control components to the correspond size
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            Loading.Size = new Size(this.Width, this.Height);
+          
             initFirstLayer();
             initSecondLayer();
             ShowLayer(0);
-
+            Loading.BringToFront();
+            //LoadCCLabel();
+           
            
 
         }
@@ -100,6 +113,19 @@ namespace visualization
                 LabelList.Items.Add(s);
             */
 
+            LabelView.BringToFront();
+           
+            LabelViewCC.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+            LabelViewCC.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
+            
+            LabelViewCC.Visible = false;
+
+
+
+            
+          
+            
+
 
             LabelView.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
             LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
@@ -108,7 +134,13 @@ namespace visualization
             foreach (string s in dp.label)
                 LabelView.Items.Add(new ListViewItem(s));
 
+           
 
+            
+          
+            
+           
+            first_layer_LabelView_mode = true;
 
 
             LabelList.Visible = false;
@@ -133,8 +165,10 @@ namespace visualization
             lc.Add(alphaBar);
             lc.Add(mode);
             lc.Add(LabelView);
-
-            Panel_Layer.Add(lc);
+            lc.Add(dataNumLabel);
+            lc.Add(LabelViewCC);
+             Panel_Layer.Add(lc);
+            
         }
         
 
@@ -159,7 +193,7 @@ namespace visualization
             lc.Add(scatterPlot);
             lc.Add(LabelView2);
             lc.Add(updateScatterPlot);
-
+            lc.Add(alphaBar);
             Panel_Layer.Add(lc);
             
         }
@@ -170,56 +204,19 @@ namespace visualization
             {
                 foreach(Control c in Panel_Layer[i])
                 {
-                    if (i == index)
-                        c.Visible = true;
-                    else
+                   
                         c.Visible = false;
                 }
             }
-        }
 
-
-        /*
-        public void HorizontalListbox()
-        {
-
-            LabelView.View = View.Tile;
-            LabelView.Alignment = ListViewAlignment.Left;
-            LabelView.OwnerDraw = true;
-            LabelView.DrawItem += listView1_DrawItem;
-            LabelView.Location = new Point((int)(this.Width * 0.025), LabelView.Location.Y);
-            LabelView.Size=new Size((int)(this.Width*0.95), LabelView.Height*2);
-            LabelView.TileSize = new Size(48,
-            LabelView.ClientSize.Height - (SystemInformation.HorizontalScrollBarHeight + 4));
-            foreach (string s in dp.label)
+            foreach (Control c in Panel_Layer[index])
             {
-                string tmp = "";
-                foreach (char c in s)
-                    tmp += (c.ToString() + '\n');
-                LabelView.Items.Add(new ListViewItem(tmp));
+                 c.Visible = true;
             }
         }
-        
+
+
        
-        public void listView1_DrawItem(object sender, DrawListViewItemEventArgs e)
-        {
-            Color textColor = Color.Black;
-            if ((e.State & ListViewItemStates.Selected) != 0)
-            {
-                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
-                textColor = SystemColors.HighlightText;
-            }
-            else
-            {
-                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
-            }
-            e.Graphics.DrawRectangle(Pens.DarkGray, e.Bounds);
-
-            TextRenderer.DrawText(e.Graphics, e.Item.Text, LabelView.Font, e.Bounds,
-                                  textColor, Color.Empty,
-                                  TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-        }
-        */
         private void LabelView_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -236,14 +233,20 @@ namespace visualization
 
             List<int> select_index = new List<int>();
 
-
+            
             bool useDateInfo=false;
-            foreach (int i in LabelView.CheckedIndices)
+            if (first_layer_LabelView_mode)
             {
-                if (i != 0)
-                    select_index.Add(i-1);
-                else
-                    useDateInfo = true;
+                foreach (int i in LabelView.CheckedIndices)
+                {
+                    if (i != 0)
+                        select_index.Add(i - 1);
+                    else
+                        useDateInfo = true;
+                }
+            }else
+            {
+                select_index=SelectFromCCLabel();
             }
 
             if(select_index.Count<2)
@@ -360,6 +363,7 @@ namespace visualization
         private void alphaBar_Scroll(object sender, ScrollEventArgs e)
         {
             graph_table.AlphaChange((int)(alphaBar.Value * 2.55));
+            scatterPlot.AlphaChange((int)(alphaBar.Value * 2.55));
         }
 
         private void mode_Click(object sender, EventArgs e)
@@ -436,7 +440,161 @@ namespace visualization
             ShowLayer(1);
         }
 
+
        
+        public void LoadCC()
+        {
+            for (int i = 0; i < dp.labelNum; i++)
+            {
+                for (int j = i + 1; j < dp.labelNum; j++)
+                {
+                    if (j != i)
+                    {
+                        CorrelationCoefficient cc = new CorrelationCoefficient(dp.ReturnRowData(i), dp.ReturnRowData(j));
+                        CCGroup ccg = new CCGroup(i, j, cc.CalculateCC());
+                        ccLabel.Add(ccg);
+                    }
+                }
+            }
+
+
+            //sort cc array
+
+            for(int i=0;i<ccLabel.Count;i++)
+            {
+                for(int j=i+1;j<ccLabel.Count;j++)
+                {
+                    if(Math.Abs(ccLabel[j].value)>Math.Abs(ccLabel[i].value))
+                    {
+                        CCGroup tmp = ccLabel[j];
+                        ccLabel[j] = ccLabel[i];
+                        ccLabel[i] = tmp;
+                    }
+                }
+            }
+
+            for (int i = 0; i < ccLabel.Count; i++)
+            {
+
+                string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + ")";
+                ccLabel_name.Add(s);
+            }
+        }
+
+        private  void LoadCCLabel()
+        {
+
+
+            //List<string> tmp = new List<string>();    
+            for (int i = 0; i < ccLabel.Count; i++)
+            {
+                   
+                //tmp.Add(s);
+                LabelViewCC.Invoke(new MethodInvoker(delegate() { LabelViewCC.Items.Add(new ListViewItem(ccLabel_name[i])); }));
+            }
+
+
+            //LabelViewCC.Invoke(new MethodInvoker(delegate() { LabelViewCC.Items.Add(new ListViewItem(tmp.ToArray())); }));
+            Loading.Invoke(new MethodInvoker(delegate() { Loading.Visible = false; }));
+            
+        }
+
+
+        private void TestFuncLoad()
+        {
+            this.Invoke(new MethodInvoker(delegate() {
+
+                LabelViewCC.BeginUpdate();
+
+                foreach (string s in ccLabel_name)
+                    LabelViewCC.Items.Add(s);
+                LabelViewCC.EndUpdate();
+
+               
+                //LabelViewCC.Invoke(new MethodInvoker(delegate() { LabelViewCC.Items.Add(new ListViewItem(tmp.ToArray())); }));
+                Loading.Visible = false; 
+            }));
+        }
+
+
+        private void LabelViewMode_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void normalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            LabelView.Visible = true;
+            LabelViewCC.Visible = false;
+            first_layer_LabelView_mode = true;
+        }
+
+        private void sortByCCToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+
+            LabelView.Visible = false;
+            LabelViewCC.Visible = true;
+            first_layer_LabelView_mode = false;
+        }
+
+        private void LabelView_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    {
+                        
+                        LabelViewMode.Show(LabelView, new Point(e.X, e.Y));//places the menu at the pointer position
+                    }
+                    break;
+            }
+        }
+
+        private void LabelViewCC_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    {
+
+                        LabelViewMode.Show(LabelView, new Point(e.X, e.Y));//places the menu at the pointer position
+                    }
+                    break;
+            }
+        }
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+           
+            var thread = new Thread(LoadCCLabel);
+            //var thread = new Thread(TestFuncLoad);
+           
+            thread.Start();
+            
+
+        }
+
+        public List<int> SelectFromCCLabel()
+        {
+            List<int> selected = new List<int>();
+
+            foreach (int i in LabelViewCC.CheckedIndices)
+            {
+                if (!selected.Contains(ccLabel[i].indexA))
+                    selected.Add(ccLabel[i].indexA);
+                if (!selected.Contains(ccLabel[i].indexB))
+                    selected.Add(ccLabel[i].indexB);
+            }
+            return selected;
+        }
+
+        private void Loading_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine("??");
+        }
+        
 
     }
 }

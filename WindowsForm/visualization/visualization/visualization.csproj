@@ -113,6 +113,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="GraphBox.resx">
       <DependentUpon>GraphBox.cs</DependentUpon>
@@ -136,6 +137,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\Debug\loading.gif" />
     <Content Include="ILMergeOrder.txt" />
     <Content Include="tapir_ntz_3.ico" />
   </ItemGroup>

@@ -42,9 +42,16 @@
             this.RightClickMenu = new MetroFramework.Controls.MetroContextMenu(this.components);
             this.graphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.correlationCoefficientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LabelViewMode = new MetroFramework.Controls.MetroContextMenu(this.components);
+            this.normalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortByCCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LabelViewCC = new MetroFramework.Controls.MetroListView();
+            this.Loading = new System.Windows.Forms.PictureBox();
             this.scatterPlot = new visualization.ScatterPlot();
             this.graph_table = new visualization.Graph();
             this.RightClickMenu.SuspendLayout();
+            this.LabelViewMode.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Loading)).BeginInit();
             this.SuspendLayout();
             // 
             // LabelView
@@ -67,6 +74,7 @@
             this.LabelView.UseStyleColors = true;
             this.LabelView.View = System.Windows.Forms.View.List;
             this.LabelView.SelectedIndexChanged += new System.EventHandler(this.LabelView_SelectedIndexChanged);
+            this.LabelView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LabelView_MouseDown);
             // 
             // updateBtn
             // 
@@ -83,7 +91,7 @@
             this.preTime.Location = new System.Drawing.Point(12, 701);
             this.preTime.MaxDate = new System.DateTime(2018, 12, 31, 0, 0, 0, 0);
             this.preTime.MinDate = new System.DateTime(2007, 1, 1, 0, 0, 0, 0);
-            this.preTime.MinimumSize = new System.Drawing.Size(0, 30);
+            this.preTime.MinimumSize = new System.Drawing.Size(4, 30);
             this.preTime.Name = "preTime";
             this.preTime.Size = new System.Drawing.Size(180, 30);
             this.preTime.TabIndex = 8;
@@ -107,7 +115,7 @@
             this.curTime.Location = new System.Drawing.Point(264, 701);
             this.curTime.MaxDate = new System.DateTime(2018, 12, 31, 0, 0, 0, 0);
             this.curTime.MinDate = new System.DateTime(2007, 1, 1, 0, 0, 0, 0);
-            this.curTime.MinimumSize = new System.Drawing.Size(0, 30);
+            this.curTime.MinimumSize = new System.Drawing.Size(4, 30);
             this.curTime.Name = "curTime";
             this.curTime.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.curTime.Size = new System.Drawing.Size(180, 30);
@@ -204,6 +212,62 @@
             this.correlationCoefficientToolStripMenuItem.Text = "Correlation Coefficient";
             this.correlationCoefficientToolStripMenuItem.Click += new System.EventHandler(this.correlationCoefficientToolStripMenuItem_Click);
             // 
+            // LabelViewMode
+            // 
+            this.LabelViewMode.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.LabelViewMode.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.normalToolStripMenuItem,
+            this.sortByCCToolStripMenuItem});
+            this.LabelViewMode.Name = "LabelViewMode";
+            this.LabelViewMode.Size = new System.Drawing.Size(159, 56);
+            this.LabelViewMode.Opening += new System.ComponentModel.CancelEventHandler(this.LabelViewMode_Opening);
+            // 
+            // normalToolStripMenuItem
+            // 
+            this.normalToolStripMenuItem.Name = "normalToolStripMenuItem";
+            this.normalToolStripMenuItem.Size = new System.Drawing.Size(158, 26);
+            this.normalToolStripMenuItem.Text = "Normal";
+            this.normalToolStripMenuItem.Click += new System.EventHandler(this.normalToolStripMenuItem_Click);
+            // 
+            // sortByCCToolStripMenuItem
+            // 
+            this.sortByCCToolStripMenuItem.Name = "sortByCCToolStripMenuItem";
+            this.sortByCCToolStripMenuItem.Size = new System.Drawing.Size(158, 26);
+            this.sortByCCToolStripMenuItem.Text = "Sort by CC";
+            this.sortByCCToolStripMenuItem.Click += new System.EventHandler(this.sortByCCToolStripMenuItem_Click);
+            // 
+            // LabelViewCC
+            // 
+            this.LabelViewCC.AutoArrange = false;
+            this.LabelViewCC.CheckBoxes = true;
+            this.LabelViewCC.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.LabelViewCC.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.LabelViewCC.FullRowSelect = true;
+            this.LabelViewCC.Location = new System.Drawing.Point(211, 416);
+            this.LabelViewCC.Name = "LabelViewCC";
+            this.LabelViewCC.OwnerDraw = true;
+            this.LabelViewCC.Size = new System.Drawing.Size(121, 225);
+            this.LabelViewCC.TabIndex = 263;
+            this.LabelViewCC.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.LabelViewCC.UseCompatibleStateImageBehavior = false;
+            this.LabelViewCC.UseCustomBackColor = true;
+            this.LabelViewCC.UseCustomForeColor = true;
+            this.LabelViewCC.UseSelectable = true;
+            this.LabelViewCC.UseStyleColors = true;
+            this.LabelViewCC.View = System.Windows.Forms.View.List;
+            this.LabelViewCC.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LabelViewCC_MouseDown);
+            // 
+            // Loading
+            // 
+            this.Loading.Image = global::visualization.Properties.Resources.loading;
+            this.Loading.Location = new System.Drawing.Point(12, 11);
+            this.Loading.Name = "Loading";
+            this.Loading.Size = new System.Drawing.Size(1033, 720);
+            this.Loading.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.Loading.TabIndex = 264;
+            this.Loading.TabStop = false;
+            this.Loading.Click += new System.EventHandler(this.Loading_Click);
+            // 
             // scatterPlot
             // 
             this.scatterPlot.BackColor = System.Drawing.SystemColors.Control;
@@ -229,6 +293,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1298, 767);
+            this.Controls.Add(this.Loading);
+            this.Controls.Add(this.LabelViewCC);
             this.Controls.Add(this.LabelView2);
             this.Controls.Add(this.scatterPlot);
             this.Controls.Add(this.updateScatterPlot);
@@ -247,10 +313,13 @@
             this.Text = "Graph";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Shown += new System.EventHandler(this.Form1_Shown);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.Form1_DragOver);
             this.DragLeave += new System.EventHandler(this.Form1_DragLeave);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.RightClickMenu.ResumeLayout(false);
+            this.LabelViewMode.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.Loading)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -273,6 +342,11 @@
         private MetroFramework.Controls.MetroContextMenu RightClickMenu;
         private System.Windows.Forms.ToolStripMenuItem graphToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem correlationCoefficientToolStripMenuItem;
+        private MetroFramework.Controls.MetroContextMenu LabelViewMode;
+        private System.Windows.Forms.ToolStripMenuItem normalToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sortByCCToolStripMenuItem;
+        private MetroFramework.Controls.MetroListView LabelViewCC;
+        private System.Windows.Forms.PictureBox Loading;
        
 
     }
