@@ -23,11 +23,13 @@ namespace visualization
         public List<CCGroup> ccLabel;
         public List<string> ccLabel_name;
         public bool first_layer_LabelView_mode;
-
+        public bool useDateInfo;
+     
         public Form1()
         {
             InitializeComponent();
-            TestFunc();
+            
+                
             Panel_Layer=new List<List<Control>>();
 
             dp = new DataProcessing();
@@ -52,7 +54,7 @@ namespace visualization
             ccLabel_name = new List<string>();
             LoadCC();
 
-            
+           
         }
 
         
@@ -86,7 +88,7 @@ namespace visualization
         private void Form1_Load(object sender, EventArgs e)
         {
             Loading.Size = new Size(this.Width, this.Height);
-          
+            Loading.Location = new Point(0,2);
             initFirstLayer();
             initSecondLayer();
             ShowLayer(0);
@@ -103,7 +105,7 @@ namespace visualization
             //this.BackColor = Color.Black;
             graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
             graph_table.Location = new Point(0, (int)(this.Height * 0.09));
-
+            graph_table.rce = graph_table_MouseDown; 
 
             /*
             LabelList.Location = new Point((int)(this.Width * 0.005), LabelList.Location.Y);
@@ -234,7 +236,7 @@ namespace visualization
             List<int> select_index = new List<int>();
 
             
-            bool useDateInfo=false;
+            useDateInfo=false;
             if (first_layer_LabelView_mode)
             {
                 foreach (int i in LabelView.CheckedIndices)
@@ -251,8 +253,11 @@ namespace visualization
 
             if(select_index.Count<2)
             {
-                MessageBox.Show("Please pick more than 2 category!");
-                return;
+                if (select_index.Count == 0 || useDateInfo == false)
+                {
+                    MessageBox.Show("Please pick more than 2 category!");
+                    return;
+                }
             }
 
             if (preTime.Value > curTime.Value)
@@ -451,7 +456,7 @@ namespace visualization
                     if (j != i)
                     {
                         CorrelationCoefficient cc = new CorrelationCoefficient(dp.ReturnRowData(i), dp.ReturnRowData(j));
-                        CCGroup ccg = new CCGroup(i, j, cc.CalculateCC());
+                        CCGroup ccg = new CCGroup(i, j, cc.CalculateCC(),cc.CalculateSimilarity());
                         ccLabel.Add(ccg);
                     }
                 }
@@ -476,15 +481,14 @@ namespace visualization
             for (int i = 0; i < ccLabel.Count; i++)
             {
 
-                string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + ")";
+                string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + "-"+ccLabel[i].match.ToString("0.00")+")";
                 ccLabel_name.Add(s);
             }
         }
 
         private  void LoadCCLabel()
         {
-
-
+            LabelViewCC.Invoke(new MethodInvoker(delegate() { LabelViewCC.Items.Add(new ListViewItem("日期")); }));
             //List<string> tmp = new List<string>();    
             for (int i = 0; i < ccLabel.Count; i++)
             {
@@ -499,13 +503,30 @@ namespace visualization
             
         }
 
+        public void TestFuncLoad()
+        {
 
+
+            //LabelViewCC.BeginUpdate();
+            LabelViewCC.Items.Add("日期");
+            foreach (string s in ccLabel_name)
+                LabelViewCC.Items.Add(s);
+            //LabelViewCC.EndUpdate();
+
+
+  
+            Loading.Visible = false; 
+        
+        }
+        /*
         private void TestFuncLoad()
         {
             this.Invoke(new MethodInvoker(delegate() {
 
+                
+                
                 LabelViewCC.BeginUpdate();
-
+                LabelViewCC.Items.Add("日期");
                 foreach (string s in ccLabel_name)
                     LabelViewCC.Items.Add(s);
                 LabelViewCC.EndUpdate();
@@ -515,7 +536,7 @@ namespace visualization
                 Loading.Visible = false; 
             }));
         }
-
+        */
 
         private void LabelViewMode_Opening(object sender, CancelEventArgs e)
         {
@@ -572,8 +593,9 @@ namespace visualization
             //var thread = new Thread(TestFuncLoad);
            
             thread.Start();
-            
-
+            //Loading.Visible = false;
+            //Action action = TestFuncLoad;
+            //action.BeginInvoke(ar => action.EndInvoke(ar), null);
         }
 
         public List<int> SelectFromCCLabel()
@@ -582,10 +604,18 @@ namespace visualization
 
             foreach (int i in LabelViewCC.CheckedIndices)
             {
-                if (!selected.Contains(ccLabel[i].indexA))
-                    selected.Add(ccLabel[i].indexA);
-                if (!selected.Contains(ccLabel[i].indexB))
-                    selected.Add(ccLabel[i].indexB);
+                if (i == 0)
+                {
+                   
+                    useDateInfo = true;
+                }
+                else
+                {
+                    if (!selected.Contains(ccLabel[i - 1].indexA))
+                        selected.Add(ccLabel[i - 1].indexA);
+                    if (!selected.Contains(ccLabel[i - 1].indexB))
+                        selected.Add(ccLabel[i - 1].indexB);
+                }
             }
             return selected;
         }
@@ -595,6 +625,93 @@ namespace visualization
             Console.WriteLine("??");
         }
         
+        public void graph_table_SetScreen(float f)
+        {
+            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * f));
+        }
+
+        private void graph_table_MouseDown(object sender, MouseEventArgs e)
+        {
+           
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    {
+                       
+                        graph_table_mode.Show(graph_table, new Point(e.X, e.Y));//places the menu at the pointer position
+                    }
+                    break;
+            }
+        }
+
+        private void fullToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            graph_table_SetScreen(0.9f);
+            graph_table.BringToFront();
+            graph_table.ReInit();
+            graph_table.NotifyRedraw();
+        }
+
+        private void halfToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            graph_table_SetScreen(0.48f);
+            graph_table.ReInit();
+            graph_table.NotifyRedraw();
+        }
+
+
+        private void horizToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
+            graph_table.Location = new Point(0, (int)(this.Height * 0.09));
+            LabelView.BringToFront();
+            LabelViewCC.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+            LabelViewCC.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
+
+            LabelView.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+            LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
+            
+
+            graph_table.SetDirection(true);
+        }
+
+        private void useRayToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            graph_table.useRay = !graph_table.useRay;
+            if (graph_table.useRay)
+            {
+                useRayToolStripMenuItem.Text = "Cancel ray";
+
+            }
+            else
+            {
+                useRayToolStripMenuItem.Text = "Use ray";
+                graph_table.NotifyRedraw();
+            }
+        }
+
+
+ 
+        private void verticalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            graph_table.Size = new Size((int)(this.Width * 0.7), (int)(this.Height * 0.8));
+            graph_table.Location = new Point(0, (int)(this.Height * 0.09));
+            LabelView.BringToFront();
+          
+            LabelViewCC.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
+            LabelViewCC.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
+            LabelView.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
+            LabelView.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
+
+
+           
+            graph_table.SetDirection(false);
+        }
+
+        private void directionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
 
     }
 }

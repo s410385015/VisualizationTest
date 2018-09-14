@@ -18,13 +18,23 @@ namespace visualization
 
         public int w;
         public int h;
+
+
+        public int max_left;
+        public int max_right;
+        public int min_left;
+        public int min_right;
+        public int max_top;
+        public int min_top;
+        public int max_bottom;
+        public int min_bottom;
         
-
-
         public int margin_top;
         public int margin_bottom;
         public int margin_left;
         public int margin_right;
+
+
 
         int startX, startY;
         public Color axis_color;
@@ -92,11 +102,26 @@ namespace visualization
         public string date_label_old;
         public bool useDate;
 
+        public delegate void rightClickEvent(object sender, MouseEventArgs e);
+        public rightClickEvent rce;
+        
+        public bool useRay;
+        public Color ray_color;
+        public int ray_size;
+        public int curY;
+        public int curX;
+
+        // true  == horizontal
+        // false == vertical
+        public bool direction = true;
+
         public Graph()
         {
             InitializeComponent();
+            
             Init();
             pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.Graph_Paint);
+            this.pictureBox1.MouseWheel += new MouseEventHandler(pictureBox1_MouseWheel);
             ColorMap = new List<Color>();
             ColorMap.Add(Color.FromArgb(255, 0, 255));
             ColorMap.Add(Color.FromArgb(0, 0, 255));
@@ -114,10 +139,13 @@ namespace visualization
             w = this.Size.Width;
             h = this.Size.Height;
 
-            margin_top = 20;
-            margin_bottom = 50;
-            margin_left = 70;
-            margin_right = 50;
+            min_top=margin_top = 50;
+            min_bottom=margin_bottom = 50;
+            min_left=margin_left = 70;
+            min_right=margin_right = 70;
+            
+           
+
 
             axis_size = 1;
             axis_color = Color.Black;
@@ -167,6 +195,10 @@ namespace visualization
             filter_size = 10;
             filter_select = -1;
             isVisible = new List<bool>();
+            
+            useRay = false;
+            ray_color = Color.FromArgb(46, 139, 87);
+            ray_size = 2;
         }
 
         public void SetMode(int m)
@@ -211,6 +243,12 @@ namespace visualization
 
             for(int i=0;i<dn;i++)
                 isVisible.Add(true);
+
+
+            max_right = (int)(this.Width - min_left) ;
+            max_left = (int)(this.Width - min_right) ;
+            max_top = (int)(this.Height  - min_bottom) ;
+            max_bottom = (int)(this.Height - min_top ) ;
         }
 
         public void drawGraph()
@@ -223,37 +261,107 @@ namespace visualization
 
         public void NotifyRedraw()
         {
+            
             pictureBox1.Invalidate();
         }
+
+        public void ReInit()
+        {
+            //PrintF();
+            pictureBox1.Size = new Size(this.Width, this.Height);
+
+            w = this.Size.Width;
+            h = this.Size.Height;
+
+            
+            axis_length = (w - margin_left - margin_right) / (class_num - 1);
+            Console.WriteLine(w + " " + margin_left + " " + margin_right + " " + axis_length);
+            axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
+
+            max_right = (int)(this.Width - min_left);
+            max_left = (int)(this.Width - min_right);
+            max_top = (int)(this.Height - min_bottom);
+            max_bottom = (int)(this.Height - min_top);
+            //PrintF();
+        }
+
+        public void PrintF()
+        {
+            Console.WriteLine
+                (
+                    "w:" + w + " " +
+                    "h:" + h + " " +
+                    "length:" + axis_length + " " +
+                    "height:" + axis_height + " "
+                );
+        }
+
+
         public void Update()
         {
             g.Clear(this.BackColor);
             //GraphInit();
-            DrawAxis();
-            if (Filter_SearchForAxis())
+            if (!direction)
             {
-               
-                Rectangle r = getRectangle();
-                r = RestrictFilter(r);
-                filter = r;
+                DrawAxis2();
+                if (Filter_SearchForAxis2())
+                {
 
-                Rectangle r1 = getRectangle(filter_bound_size);
-                r = RestrictFilter(r);
-                g.FillRectangle(new SolidBrush(filter_color_in), r.Location.X, r.Location.Y, r.Width, r.Height);
+                    Rectangle r = getRectangle2();
+                    r = RestrictFilter2(r);
+                    filter = r;
 
-                
-                for (int i = 0; i < class_num - 1; i++)
-                    DrawDataLine(i);
-                DrawFilter(r,r1);
-            }
-            else
+                    Rectangle r1 = getRectangle2(filter_bound_size);
+                    r1 = RestrictFilter2(r1, filter_bound_size);
+                    //g.FillRectangle(new SolidBrush(filter_color_in), r.Location.X, r.Location.Y, r.Width, r.Height);
+
+
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawDataLine2(i);
+                    DrawFilter(r, r1);
+                }
+                else
+                {
+                    if (filter_select != -1)
+                        FilterDestory();
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawDataLine2(i);
+
+                }
+                DrawRay2();
+            }else
             {
-                if(filter_select!=-1)
-                    FilterDestory();
-                for (int i = 0; i < class_num - 1; i++)
-                    DrawDataLine(i);
 
+                DrawAxis();
+                if (Filter_SearchForAxis())
+                {
+
+                    Rectangle r = getRectangle();
+                    r = RestrictFilter(r);
+                    filter = r;
+
+                    Rectangle r1 = getRectangle(filter_bound_size);
+                    r1 = RestrictFilter(r1, filter_bound_size);
+                    //g.FillRectangle(new SolidBrush(filter_color_in), r.Location.X, r.Location.Y, r.Width, r.Height);
+
+
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawDataLine(i);
+                    DrawFilter(r, r1);
+                }
+                else
+                {
+                    if (filter_select != -1)
+                        FilterDestory();
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawDataLine(i);
+
+                }
+                DrawRay();
             }
+
+
+            Console.WriteLine(startX + " " + startY);
         }
         
         public void Reset()
@@ -264,60 +372,8 @@ namespace visualization
             label_name.Clear();
         }
 
-        public void GenerateFakeData()
-        {
-           
-            DataLabel data1 = new DataLabel();
-            DataLabel data2 = new DataLabel();
-            DataLabel data3 = new DataLabel();
-            
-            for (int i = 0; i < 10; i++)
-                data1.data_label.Add(0.1f*i);
+       
 
-            for (int i = 0; i < 3; i++)
-                data2.data_label.Add(1f * i);
-
-            for (int i = 0; i < 5; i++)
-                data3.data_label.Add(0.5f * i);
-
-
-
-            data1._data.Add(0.05f);
-            data1._data.Add(0.2f);
-            data1._data.Add(0.3f);
-            data1._data.Add(0.4f);
-            data1._data.Add(0.56f);
-            data1._data.Add(0.73f);
-            data1._data.Add(0.82f);
-
-
-            data2._data.Add(0.2f);
-            data2._data.Add(0.5f);
-            data2._data.Add(0.73f);
-            data2._data.Add(0.99f);
-            data2._data.Add(1.15f);
-            data2._data.Add(1.22f);
-            data2._data.Add(1.58f);
-
-            data3._data.Add(0.3f);
-            data3._data.Add(0.43f);
-            data3._data.Add(0.5f);
-            data3._data.Add(0.73f);
-            data3._data.Add(0.99f);
-            data3._data.Add(1.23f);
-            data3._data.Add(1.58f);
-
-
-            data.Add(data1);
-            data.Add(data2);
-            data.Add(data3);
-
-
-
-            
-
-           
-        }
 
         private void Graph_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
@@ -333,7 +389,12 @@ namespace visualization
             //g.DrawRectangle(new Pen(axis_color, axis_size), new Rectangle(50, 50, 100, 100));
         }
 
-       
+
+
+
+        /*
+            Draw axis in horizontal direction  
+        */
         public void DrawAxis()
         {
 
@@ -381,7 +442,7 @@ namespace visualization
                             g.DrawString(n, label_axis_font, label_axis_brush, drawRect, label_axis_format);
                     }
                     else
-                        g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                        g.DrawString(data[i].data_label[j].ToString("00"), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
                 if (reLabel)
@@ -396,6 +457,19 @@ namespace visualization
                     else{
                         GenerateLabel(new Point(p1.X - label_width*5, p2.Y + label_height ), i);
                     }
+                }else
+                {
+                    if (class_num > max_label_per_row)
+                    {
+                        if (i % 2 == 0)
+                            MoveLabel(new Point(p1.X - label_width * 5, p2.Y + (int)(label_height * 5)), i);
+                        else
+                            MoveLabel(new Point(p1.X - label_width * 5, p2.Y + label_height), i);
+                    }
+                    else
+                    {
+                        MoveLabel(new Point(p1.X - label_width * 5, p2.Y + label_height), i);
+                    }
                 }
                 g.DrawLine(pen, p1, p2);
             }
@@ -403,6 +477,114 @@ namespace visualization
             reLabel = false;
 
         }
+
+        /*
+           Draw axis in vertical direction  
+       */
+        public void DrawAxis2()
+        {
+            startX = margin_left;
+            startY = margin_top;
+
+            Pen pen = new Pen(axis_color, axis_size);
+
+            int axis_width2 = this.Size.Width - margin_left - margin_right - label_width;
+            int axis_height2 = (this.Size.Height - margin_top - margin_bottom) / (class_num - 1);
+
+
+            for (int i = 0; i < class_num; i++)
+            {
+
+                Point p1 = new Point(startX , startY+i*axis_height2);
+                Point p2 = new Point(startX + axis_width2, startY + i * axis_height2);
+
+                //axis label length between each others
+                int axis_label_length = axis_width2 / (data[i].data_label.Count - 1);
+
+
+               
+
+
+                for (int j = 0; j < data[i].data_label.Count; j++)
+                {
+
+                  
+                    Point p3 = new Point(p1.X +j* axis_label_length, p1.Y + label_axis_width*2);
+                    Point p4 = new Point(p1.X +j* axis_label_length, p1.Y);
+                    
+                    
+                    g.DrawLine(pen, p3, p4);
+
+                    RectangleF drawRect = new RectangleF(p1.X + j * axis_label_length - (int)(label_axis_widthOflabel / 1.4), p1.Y + (int)(label_axis_width*2.5) , label_axis_widthOflabel, label_axis_heightOflabel);
+
+                    //Handle the date info
+                    if (data[i].data_label.Count == 2)
+                    {
+                       
+                        float _f = 1.5f;
+                        drawRect = new RectangleF(p1.X + j * axis_label_length - (int)(label_axis_widthOflabel / 1.4), +p1.Y + (int)(label_axis_width * 2.5), (int)(label_axis_widthOflabel * _f), label_axis_heightOflabel);
+                        string o = date_label_old;
+                        string n = date_label_new;
+                        if (data[i].data_label[0] > data[i].data_label[1])
+                        {
+                            o = date_label_new;
+                            n = date_label_old;
+                        }
+                        if (j == 0)
+                            g.DrawString(o, label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                        else
+                            g.DrawString(n, label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                    }
+                    else
+                        g.DrawString(data[i].data_label[j].ToString("00"), label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                }
+
+
+                Label l = new Label();
+             
+                
+                if (reLabel)
+                {
+                    GenerateLabel(new Point(p1.X - l.Size.Width, p2.Y - (int)(l.Height / 2)), i,true);
+                   /* 
+                    if (class_num > max_label_per_row)
+                    {
+                        if (i % 2 == 0)
+                            GenerateLabel(new Point(p1.X - l.Size.Width, p2.Y - (int)(l.Height / 2)), i, offset);
+                        else
+                            GenerateLabel(new Point(p2.X , p2.Y - (int)(l.Height / 2)), i, offset);
+                    }
+                    else
+                    {
+                        GenerateLabel(new Point(p1.X - l.Size.Width , p2.Y-(int)(l.Height/2) ), i,offset);
+                    }
+                    */
+                }
+                else
+                {
+                    MoveLabel(new Point(p1.X - l.Size.Width , p2.Y - (int)(l.Height / 2)), i);
+                    /*
+                    if (class_num > max_label_per_row)
+                    {
+                        if (i % 2 == 0)
+                            MoveLabel(new Point(p1.X - l.Size.Width + offset, p2.Y - (int)(l.Height / 2)), i);
+                        else
+                            MoveLabel(new Point(p2.X, p2.Y - (int)(l.Height / 2)), i);
+                    }
+                    else
+                    {
+                        MoveLabel(new Point(p1.X - l.Size.Width+offset, p2.Y - (int)(l.Height / 2)), i);
+                    }
+                     */ 
+                }
+                l.Dispose();
+                g.DrawLine(pen, p1, p2);
+            }
+
+            reLabel = false;
+        }
+       
+
 
         private void Graph_Load(object sender, EventArgs e)
         {
@@ -425,13 +607,17 @@ namespace visualization
         }
 
 
-        public void GenerateLabel(Point p,int index)
+        public void GenerateLabel(Point p,int index,bool flag=false)
         {
            
             data[index].label = new Label();
             data[index].label.TextAlign = ContentAlignment.MiddleCenter;
             data[index].label.Font = label_font;
-            data[index].label.Location = p;
+            data[index].label.Location = new Point(p.X,p.Y);
+            data[index].label.Size = new Size(data[index].label.Size.Width , data[index].label.Size.Height);
+            data[index].label.BackColor = Color.Transparent;
+            if(flag)
+                data[index].label.TextAlign = ContentAlignment.MiddleRight;
             if (label_name.Count > 0)
                 data[index].label.Text = label_name[index];
             else
@@ -443,7 +629,10 @@ namespace visualization
             pictureBox1.Controls.Add(data[index].label);
         }
 
-      
+        public void MoveLabel(Point p,int index)
+        {
+            data[index].label.Location = p;
+        }
 
         public void label_Click(object sender, EventArgs e)
         {
@@ -670,6 +859,49 @@ namespace visualization
             }
         }
 
+        public void InFilter2(int index)
+        {
+            if (index == -1)
+                return;
+
+
+            startX = margin_left;
+            startY = margin_top;
+            bool flag = true;
+            if (data[index].data_label.Count > 1)
+                flag = (data[index].data_label[1] > data[index].data_label[0]) ? (true) : (false);
+
+            int axis_width2 = this.Size.Width - margin_left - margin_right - label_width;
+            int axis_height2 = (this.Size.Height - margin_top - margin_bottom) / (class_num - 1);
+            
+            int _y = startY + index * axis_width2;
+            float _range = Math.Abs(data[index].data_label[0] - data[index].data_label[data[index].data_label.Count - 1]);
+
+            for (int i = 0; i < data_num; i++)
+            {
+                Point p1;
+                if (flag)
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[0]) / _range);
+                    int offset = (int)(axis_width2 * factor);
+                    p1 = new Point( startX +  offset,_y);
+                }
+                else
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[data[index].data_label.Count - 1]) / _range);
+                    int offset = (int)(axis_width2 * factor);
+                    p1 = new Point(startX +axis_width2- offset,_y);
+                }
+
+
+                Console.WriteLine(p1.X + " " + filter.Right + " " + filter.Left);
+                if (p1.X < filter.Left || p1.X > filter.Right)
+                    isVisible[i] = false;
+                else
+                    isVisible[i] = true;
+            }
+        }
+
         public void DrawDataLine(int index)
         {
 
@@ -747,6 +979,98 @@ namespace visualization
             }
            
         }
+
+
+
+
+        public void DrawDataLine2(int index)
+        {
+
+            if (index + 1 < class_num && index >= 0)
+            {
+                startX = margin_left;
+                startY = margin_top;
+
+
+                //true : left to right
+                //false: right to left
+                bool flag_up = true;
+                bool flag_down = true;
+
+                if (data[index].data_label.Count > 1)
+                    flag_up = (data[index].data_label[1] > data[index].data_label[0]) ? (true) : (false);
+
+                if (data[index + 1].data_label.Count > 1)
+                    flag_down = (data[index + 1].data_label[1] > data[index + 1].data_label[0]) ? (true) : (false);
+
+
+
+
+                int axis_width2 = this.Size.Width - margin_left - margin_right - label_width;
+                int axis_height2 = (this.Size.Height - margin_top - margin_bottom) / (class_num - 1);
+                
+                int up_y = startY + index * axis_height2;
+                int down_y = startY + (index + 1) * axis_height2;
+
+
+                float range_up = Math.Abs(data[index].data_label[0] - data[index].data_label[data[index].data_label.Count - 1]);
+                float range_down = Math.Abs(data[index + 1].data_label[0] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]);
+
+
+                for (int i = 0; i < data_num; i++)
+                {
+                    if (!isVisible[i])
+                        continue;
+                    Point p1, p2;
+                    Pen pen = new Pen(GetTimeColor(i), data_line_size);
+
+
+                    if (flag_up)
+                    {
+                        float factor = ((data[index]._data[i] - data[index].data_label[0]) / range_up);
+                        int offset = (int)(axis_width2 * factor);
+                        p1 = new Point(startX +  offset,up_y);
+                    }
+                    else
+                    {
+                        float factor = ((data[index]._data[i] - data[index].data_label[data[index].data_label.Count - 1]) / range_up);
+                        int offset = (int)(axis_width2 * factor);
+                        p1 = new Point(startX+axis_width2-offset, up_y);
+                    }
+
+
+
+                    if (flag_down)
+                    {
+                        float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[0]) / range_down);
+                        int offset = (int)(axis_width2 * factor);
+                        p2 = new Point(startX  + offset,down_y);
+                    }
+                    else
+                    {
+                        float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]) / range_down);
+                        int offset = (int)(axis_width2 * factor);
+                        p2 = new Point(startX+axis_width2-offset, down_y);
+                    }
+
+
+
+                    g.DrawLine(pen, p1, p2);
+                    //Console.WriteLine(pen.Color.A);
+
+
+
+                }
+            }
+
+        }
+
+
+
+
+
+
+
 
         public void DestroyLineData(int index)
         {
@@ -896,13 +1220,69 @@ namespace visualization
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            this.pictureBox1.Focus();
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    {
+
+                        rce(sender,e);
+                    }
+                    break;
+                case MouseButtons.Left:
+                    {
+                        start_Pos = cur_Pos = e.Location;
+                        isMouse = true;
+                        pictureBox1.Invalidate();
+                    }
+                    break;
+            }
             
-            start_Pos = cur_Pos = e.Location;
-            isMouse = true;
-            pictureBox1.Invalidate();
         }
 
-       
+        private void pictureBox1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if(e.Delta>0)
+            {
+                if (direction)
+                {
+                    margin_left += 10;
+                    margin_right += 10;
+
+                    margin_left = Math.Min(max_left, margin_left);
+                    margin_right = Math.Min(max_right, margin_right);
+                }
+                else
+                {
+                    margin_top += 10;
+                    margin_bottom += 10;
+
+                    margin_top = Math.Min(max_top, margin_top);
+                    margin_bottom = Math.Min(max_bottom, margin_bottom);
+                }
+            }
+            else if(e.Delta<0)
+            {
+                if (direction)
+                {
+                    margin_left -= 10;
+                    margin_right -= 10;
+
+                    margin_left = Math.Max(min_left, margin_left);
+                    margin_right = Math.Max(min_right, margin_right);
+                }else
+                {
+                    margin_top -= 10;
+                    margin_bottom -= 10;
+
+                    margin_top = Math.Max(min_top, margin_top);
+                    margin_bottom = Math.Max(min_bottom, margin_bottom);
+                }
+            }
+            ReInit();
+            NotifyRedraw();
+           
+        }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
@@ -912,13 +1292,22 @@ namespace visualization
                 cur_Pos = e.Location;
                 pictureBox1.Invalidate();
             }
+            if (useRay)
+            {
+                curY = e.Location.Y;
+                curX = e.Location.X;
+                pictureBox1.Invalidate();
+            }
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             if (isMouse)
             {
-                InFilter(filter_select);
+                if (direction)
+                    InFilter(filter_select);
+                else
+                    InFilter2(filter_select);
                 isMouse = false;
                 pictureBox1.Invalidate();
             }
@@ -938,6 +1327,7 @@ namespace visualization
 
         private void FilterDestory()
         {
+            start_Pos = new Point(-1, -1);
             filter_select = -1;
             for (int i = 0; i < isVisible.Count; i++)
                 isVisible[i] = true;
@@ -957,20 +1347,53 @@ namespace visualization
             }
         }
 
-        private Rectangle RestrictFilter(Rectangle r)
+        private Rectangle getRectangle2(int offset = 0)
+        {
+            if (cur_Pos.X -start_Pos.X > 0)
+            {
+                return new Rectangle(
+                  start_Pos.X + offset, start_Pos.Y + offset, (cur_Pos.X - start_Pos.X) - 2 * offset, filter_size - 2 * offset);
+            }
+            else
+            {
+                return new Rectangle(
+                  cur_Pos.X + offset, start_Pos.Y + offset, ( start_Pos.X-cur_Pos.X) - 2 * offset, filter_size - 2 * offset);
+            }
+        }
+
+
+        private Rectangle RestrictFilter(Rectangle r,int offset=0)
         {
             startY = margin_top;
 
             if (r.Top < startY)
-                r.Location = new Point(r.Left,startY+filter_bound_size);
+                r.Location = new Point(r.Left,startY+offset);
 
             if (r.Bottom > startY + axis_height)
-                r.Height = (startY + axis_height) - r.Top - filter_bound_size;
+                r.Height = (startY + axis_height) - r.Top - offset;
 
 
 
             return r;
         }
+
+        private Rectangle RestrictFilter2(Rectangle r, int offset = 0)
+        {
+            startX = margin_left;
+            int axis_width2 = this.Size.Width - margin_left - margin_right - label_width;
+            
+            if (r.Left < startX)
+                r.Location = new Point(startX+offset, r.Top);
+
+            if (r.Right > startX + axis_width2)
+                r.Width = (startX + axis_width2) - r.Left - offset;
+
+
+
+            return r;
+        }
+
+
 
         public bool Filter_SearchForAxis()
         {
@@ -982,6 +1405,25 @@ namespace visualization
                 if (Math.Abs(start_Pos.X - _x) <= filter_size*2)
                 {
                     start_Pos.X = _x - filter_size / 2;
+                    filter_select = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        public bool Filter_SearchForAxis2()
+        {
+            int axis_height2 = (this.Size.Height - margin_top - margin_bottom) / (class_num - 1);
+            startY = margin_top;
+
+            for (int i = 0; i < class_num; i++)
+            {
+                int _y = startY + i * axis_height2;
+                if (Math.Abs(start_Pos.Y - _y) <= filter_size * 2)
+                {
+                    start_Pos.Y = _y - filter_size / 2;
                     filter_select = i;
                     return true;
                 }
@@ -1005,6 +1447,59 @@ namespace visualization
             date_label_new = n;
             date_label_old = o;
             _flag = true;
+        }
+
+        public void DrawRay()
+        {
+            if (!useRay)
+                return;
+
+
+            curY = Math.Max(curY, margin_top);
+            curY = Math.Min(curY, this.Height - margin_bottom-5);
+            g.DrawLine(new Pen(ray_color,ray_size),new Point(margin_left, curY), new Point(this.Width-margin_right, curY));
+        }
+
+        public void DrawRay2()
+        {
+            if (!useRay)
+                return;
+
+
+            curX = Math.Max(curX, margin_left);
+            curX = Math.Min(curX, this.Width - margin_right - 10);
+            g.DrawLine(new Pen(ray_color, ray_size), new Point(curX, margin_top), new Point(curX,this.Height - margin_bottom));
+        }
+
+        public void ClearLabel()
+        {
+            foreach (DataLabel dl in data)
+                pictureBox1.Controls.Remove(dl.label);
+            reLabel = true;
+        }
+
+        public void SetDirection(bool flag)
+        {
+            direction = flag;
+            
+
+
+
+            margin_left = min_left;
+            margin_right = min_right;
+            margin_top = min_top;
+            margin_bottom = min_bottom;
+
+            if (!flag)
+            {
+                margin_left =(int)(min_left*1.5);
+                margin_right=(int)(min_right*1.5);
+            }
+            ReInit();
+            ClearLabel();
+            FilterDestory();
+            NotifyRedraw();
+         
         }
     }
     public class DataLabel

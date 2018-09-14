@@ -47,11 +47,20 @@
             this.sortByCCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LabelViewCC = new MetroFramework.Controls.MetroListView();
             this.Loading = new System.Windows.Forms.PictureBox();
+            this.graph_table_mode = new MetroFramework.Controls.MetroContextMenu(this.components);
+            this.halfToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.halfToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.directionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.horizToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.verticalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.useRayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scatterPlot = new visualization.ScatterPlot();
             this.graph_table = new visualization.Graph();
             this.RightClickMenu.SuspendLayout();
             this.LabelViewMode.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Loading)).BeginInit();
+            this.graph_table_mode.SuspendLayout();
             this.SuspendLayout();
             // 
             // LabelView
@@ -268,6 +277,70 @@
             this.Loading.TabStop = false;
             this.Loading.Click += new System.EventHandler(this.Loading_Click);
             // 
+            // graph_table_mode
+            // 
+            this.graph_table_mode.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.graph_table_mode.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.halfToolStripMenuItem,
+            this.directionToolStripMenuItem,
+            this.useRayToolStripMenuItem});
+            this.graph_table_mode.Name = "graph_table_mode";
+            this.graph_table_mode.Size = new System.Drawing.Size(182, 110);
+            // 
+            // halfToolStripMenuItem
+            // 
+            this.halfToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.halfToolStripMenuItem1,
+            this.fullToolStripMenuItem});
+            this.halfToolStripMenuItem.Name = "halfToolStripMenuItem";
+            this.halfToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.halfToolStripMenuItem.Text = "Graph size";
+            // 
+            // halfToolStripMenuItem1
+            // 
+            this.halfToolStripMenuItem1.Name = "halfToolStripMenuItem1";
+            this.halfToolStripMenuItem1.Size = new System.Drawing.Size(112, 26);
+            this.halfToolStripMenuItem1.Text = "Half";
+            this.halfToolStripMenuItem1.Click += new System.EventHandler(this.halfToolStripMenuItem1_Click);
+            // 
+            // fullToolStripMenuItem
+            // 
+            this.fullToolStripMenuItem.Name = "fullToolStripMenuItem";
+            this.fullToolStripMenuItem.Size = new System.Drawing.Size(112, 26);
+            this.fullToolStripMenuItem.Text = "Full";
+            this.fullToolStripMenuItem.Click += new System.EventHandler(this.fullToolStripMenuItem_Click);
+            // 
+            // directionToolStripMenuItem
+            // 
+            this.directionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.horizToolStripMenuItem,
+            this.verticalToolStripMenuItem});
+            this.directionToolStripMenuItem.Name = "directionToolStripMenuItem";
+            this.directionToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.directionToolStripMenuItem.Text = "Direction";
+            this.directionToolStripMenuItem.Click += new System.EventHandler(this.directionToolStripMenuItem_Click);
+            // 
+            // horizToolStripMenuItem
+            // 
+            this.horizToolStripMenuItem.Name = "horizToolStripMenuItem";
+            this.horizToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.horizToolStripMenuItem.Text = "Horizontal";
+            this.horizToolStripMenuItem.Click += new System.EventHandler(this.horizToolStripMenuItem_Click);
+            // 
+            // verticalToolStripMenuItem
+            // 
+            this.verticalToolStripMenuItem.Name = "verticalToolStripMenuItem";
+            this.verticalToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.verticalToolStripMenuItem.Text = "Vertical";
+            this.verticalToolStripMenuItem.Click += new System.EventHandler(this.verticalToolStripMenuItem_Click);
+            // 
+            // useRayToolStripMenuItem
+            // 
+            this.useRayToolStripMenuItem.Name = "useRayToolStripMenuItem";
+            this.useRayToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.useRayToolStripMenuItem.Text = "Use ray";
+            this.useRayToolStripMenuItem.Click += new System.EventHandler(this.useRayToolStripMenuItem1_Click);
+            // 
             // scatterPlot
             // 
             this.scatterPlot.BackColor = System.Drawing.SystemColors.Control;
@@ -287,6 +360,7 @@
             this.graph_table.Size = new System.Drawing.Size(1296, 323);
             this.graph_table.TabIndex = 0;
             this.graph_table.Load += new System.EventHandler(this.graph_table_Load);
+            this.graph_table.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graph_table_MouseDown);
             // 
             // Form1
             // 
@@ -320,6 +394,7 @@
             this.RightClickMenu.ResumeLayout(false);
             this.LabelViewMode.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Loading)).EndInit();
+            this.graph_table_mode.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -347,6 +422,14 @@
         private System.Windows.Forms.ToolStripMenuItem sortByCCToolStripMenuItem;
         private MetroFramework.Controls.MetroListView LabelViewCC;
         private System.Windows.Forms.PictureBox Loading;
+        private MetroFramework.Controls.MetroContextMenu graph_table_mode;
+        private System.Windows.Forms.ToolStripMenuItem halfToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem halfToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem fullToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem directionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem horizToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem useRayToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem verticalToolStripMenuItem;
        
 
     }
