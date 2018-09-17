@@ -24,7 +24,7 @@ namespace visualization
         public List<string> ccLabel_name;
         public bool first_layer_LabelView_mode;
         public bool useDateInfo;
-     
+        public bool isHor;
         public Form1()
         {
             InitializeComponent();
@@ -53,7 +53,7 @@ namespace visualization
             ccLabel = new List<CCGroup>();
             ccLabel_name = new List<string>();
             LoadCC();
-
+            isHor = true;
            
         }
 
@@ -457,7 +457,10 @@ namespace visualization
                     {
                         CorrelationCoefficient cc = new CorrelationCoefficient(dp.ReturnRowData(i), dp.ReturnRowData(j));
                         CCGroup ccg = new CCGroup(i, j, cc.CalculateCC(),cc.CalculateSimilarity());
-                        ccLabel.Add(ccg);
+                        
+                        //if the match is >0.7, means it is over match, ingore this two labels.
+                        if(ccg.match<=0.7)
+                            ccLabel.Add(ccg);
                     }
                 }
             }
@@ -481,7 +484,8 @@ namespace visualization
             for (int i = 0; i < ccLabel.Count; i++)
             {
 
-                string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + "-"+ccLabel[i].match.ToString("0.00")+")";
+                //string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + "-"+ccLabel[i].match.ToString("0.00")+")";
+                string s = dp.label[ccLabel[i].indexA] + "+" + dp.label[ccLabel[i].indexB] + "(" + ccLabel[i].value.ToString("0.00") + ")";
                 ccLabel_name.Add(s);
             }
         }
@@ -654,25 +658,14 @@ namespace visualization
 
         private void halfToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            graph_table_SetScreen(0.48f);
-            graph_table.ReInit();
-            graph_table.NotifyRedraw();
+            graph_table_changeDir(isHor);
         }
 
 
         private void horizToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
-            graph_table.Location = new Point(0, (int)(this.Height * 0.09));
-            LabelView.BringToFront();
-            LabelViewCC.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
-            LabelViewCC.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
-
-            LabelView.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
-            LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
-            
-
-            graph_table.SetDirection(true);
+            graph_table_changeDir(true);
+        
         }
 
         private void useRayToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -694,18 +687,7 @@ namespace visualization
  
         private void verticalToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            graph_table.Size = new Size((int)(this.Width * 0.7), (int)(this.Height * 0.8));
-            graph_table.Location = new Point(0, (int)(this.Height * 0.09));
-            LabelView.BringToFront();
-          
-            LabelViewCC.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
-            LabelViewCC.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
-            LabelView.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
-            LabelView.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
-
-
-           
-            graph_table.SetDirection(false);
+            graph_table_changeDir(false);
         }
 
         private void directionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -713,5 +695,40 @@ namespace visualization
 
         }
 
+
+        public void graph_table_changeDir(bool flag)
+        {
+            if(flag)
+            {
+                graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
+                graph_table.Location = new Point(0, (int)(this.Height * 0.09));
+                LabelView.BringToFront();
+                LabelViewCC.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+                LabelViewCC.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
+
+                LabelView.Location = new Point((int)(this.Width * 0.005), (int)(this.Height * 0.6));
+                LabelView.Size = new Size((int)(this.Width * 0.99), (int)(this.Height * 0.3));
+
+
+                graph_table.SetDirection(true);
+                isHor = true;
+            }
+            else
+            {
+                graph_table.Size = new Size((int)(this.Width * 0.7), (int)(this.Height * 0.8));
+                graph_table.Location = new Point(0, (int)(this.Height * 0.09));
+                LabelView.BringToFront();
+
+                LabelViewCC.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
+                LabelViewCC.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
+                LabelView.Size = new Size((int)(this.Width * 0.3), (int)(this.Height * 0.8));
+                LabelView.Location = new Point((int)(this.Width * 0.7), (int)(this.Height * 0.09));
+
+
+
+                graph_table.SetDirection(false);
+                isHor = false;
+            }
+        }
     }
 }
