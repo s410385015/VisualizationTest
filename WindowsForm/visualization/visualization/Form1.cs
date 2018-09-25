@@ -28,8 +28,10 @@ namespace visualization
         public Form1()
         {
             InitializeComponent();
-            
-                
+
+            TestFunc();    
+
+
             Panel_Layer=new List<List<Control>>();
 
             dp = new DataProcessing();
@@ -59,27 +61,17 @@ namespace visualization
 
         
         public void TestFunc()
-        {
+        { 
             List<float> x = new List<float>();
-            List<float> y = new List<float>();
-            x.Add(43);
-            x.Add(21);
-            x.Add(25);
-            x.Add(42);
-            x.Add(57);
-            x.Add(59);
-           
-
-            y.Add(99);
-            y.Add(65);
-            y.Add(79);
-            y.Add(75);
-            y.Add(87);
-            y.Add(81);
-
-            CorrelationCoefficient cc = new CorrelationCoefficient(x, y);
-
-            Console.WriteLine(cc.CalculateCC().ToString());
+            x.Add(1);
+            x.Add(2);
+            x.Add(3);
+            x.Add(4);
+            x.Add(5);
+            x.Add(6);
+            matrix m = new matrix(2, 3, x);
+            m = m.Transpose();
+            Console.WriteLine("?");
         }
 
         
@@ -105,7 +97,13 @@ namespace visualization
             //this.BackColor = Color.Black;
             graph_table.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
             graph_table.Location = new Point(0, (int)(this.Height * 0.09));
-            graph_table.rce = graph_table_MouseDown; 
+            graph_table.rce = graph_table_MouseDown;
+
+            timeGraph.Size = new Size(this.Size.Width, (int)(this.Size.Height * 0.48));
+            timeGraph.Location = new Point(0, (int)(this.Height * 0.09));
+            timeGraph.rce = timeGraph_MouseDown;
+            timeGraph.cb = SetDateByString;
+            timeGraph.SendToBack();
 
             /*
             LabelList.Location = new Point((int)(this.Width * 0.005), LabelList.Location.Y);
@@ -169,7 +167,8 @@ namespace visualization
             lc.Add(LabelView);
             lc.Add(dataNumLabel);
             lc.Add(LabelViewCC);
-             Panel_Layer.Add(lc);
+            lc.Add(timeGraph);
+            Panel_Layer.Add(lc);
             
         }
         
@@ -225,18 +224,13 @@ namespace visualization
         }
 
 
-
-        //Handle the update button
-        //Update the data that satisfy the condition 
-        private void metroButton1_Click(object sender, EventArgs e)
+        private void UpdateGraphTable()
         {
             graph_table.Reset();
-
-
             List<int> select_index = new List<int>();
 
-            
-            useDateInfo=false;
+
+            useDateInfo = false;
             if (first_layer_LabelView_mode)
             {
                 foreach (int i in LabelView.CheckedIndices)
@@ -246,12 +240,13 @@ namespace visualization
                     else
                         useDateInfo = true;
                 }
-            }else
+            }
+            else
             {
-                select_index=SelectFromCCLabel();
+                select_index = SelectFromCCLabel();
             }
 
-            if(select_index.Count<2)
+            if (select_index.Count < 2)
             {
                 if (select_index.Count == 0 || useDateInfo == false)
                 {
@@ -266,7 +261,7 @@ namespace visualization
                 preTime.Value = curTime.Value;
                 curTime.Value = tmpdatetime;
             }
-           
+
 
             List<string> label_name = new List<string>();
 
@@ -279,11 +274,11 @@ namespace visualization
             Console.WriteLine(preTime.Value.Year + "/" + preTime.Value.Month + "/" + preTime.Value.Day);
             Console.WriteLine(curTime.Value.Year + "/" + curTime.Value.Month + "/" + curTime.Value.Day);
             */
-          
+
             tmpData = dp.SearchData(preTime.Value.Year + "/" + preTime.Value.Month + "/" + preTime.Value.Day
                                     , curTime.Value.Year + "/" + curTime.Value.Month + "/" + curTime.Value.Day);
 
-            if (tmpData.Count <1)
+            if (tmpData.Count < 1)
             {
                 MessageBox.Show("There is no data in the range!");
                 return;
@@ -293,13 +288,13 @@ namespace visualization
 
             //tmpData = dp.SearchData("2007/1/2", "2007/1/10");
             dp.CalculateLabelRange(tmpData);
-          
+
             //dp.CalculateLabelRange();
             //dp.TestFunc();
 
             List<List<float>> tmpdata = new List<List<float>>();
 
-           
+
             for (int i = 0; i < tmpData.Count; i++)
             {
                 List<float> tmp = new List<float>();
@@ -310,10 +305,17 @@ namespace visualization
 
 
 
+            if (select_index.Count == 2)
+            {
+                UpdateTimeDiffData(select_index[0], select_index[1], label_name[0], label_name[1]);
+            }
+
+
+
             List<List<float>> label_axis = new List<List<float>>();
-            
-            
-            
+
+
+
 
             foreach (int index in select_index)
                 label_axis.Add(dp.labelRange[index].value);
@@ -329,14 +331,23 @@ namespace visualization
                 label_axis.Insert(0, dp.GetDateLabel(tmpdata.Count));
                 label_name.Insert(0, firstLabel);
                 add = 1;
-                graph_table.SetDateInfo(tmpData[tmpData.Count-1].time, tmpData[0].time, true);
-            }else
+                graph_table.SetDateInfo(tmpData[tmpData.Count - 1].time, tmpData[0].time, true);
+            }
+            else
             {
                 graph_table.SetDateInfo("", "", false);
             }
-            graph_table.InsertData(select_index.Count+add, tmpData.Count, label_axis, tmpdata, label_name);
+            graph_table.InsertData(select_index.Count + add, tmpData.Count, label_axis, tmpdata, label_name);
             graph_table.isExist = true;
             graph_table.drawGraph();
+        }
+
+
+        //Handle the update button
+        //Update the data that satisfy the condition 
+        private void metroButton1_Click(object sender, EventArgs e)
+        {
+            UpdateGraphTable();
         }
 
         private void curTime_DragOver(object sender, DragEventArgs e)
@@ -385,6 +396,7 @@ namespace visualization
 
         private void metroButton1_Click_1(object sender, EventArgs e)
         {
+
             scatterPlot.Rest();
             scatterPlot.isExist = true;
             List<int> select_index = new List<int>();
@@ -435,7 +447,9 @@ namespace visualization
         {
             this.Text = "Graph";
             this.Invalidate();
+            graph_table.BringToFront();
             ShowLayer(0);
+            UpdateGraphTable();
         }
 
         private void correlationCoefficientToolStripMenuItem_Click(object sender, EventArgs e)
@@ -444,7 +458,15 @@ namespace visualization
             this.Invalidate();
             ShowLayer(1);
         }
-
+        private void timeKValueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Text = "Time K value";
+            this.Invalidate();
+            timeGraph.BringToFront();
+         
+            timeGraph.Reset();
+            timeGraph.NotifyRedraw();
+        }
 
        
         public void LoadCC()
@@ -730,5 +752,67 @@ namespace visualization
                 isHor = false;
             }
         }
+        public void UpdateTimeDiffData(int a,int b,string al,string bl)
+        {
+
+            List<float> _a=new List<float>();
+            List<float> _b=new List<float>();
+            List<string> _ith = new List<string>();
+            for (int i = 0; i < dp.data.Count; i++)
+            {
+                _a.Add(dp.data[i].data[a]);
+                _b.Add(dp.data[i].data[b]);
+                _ith.Add(dp.data[i].time);
+          
+            }
+
+            timeGraph.SetData(_a, _b,al,bl,_ith);
+
+           
+        }
+
+        private void timeGraph_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    {
+
+                        time_graph_menu.Show(timeGraph, new Point(e.X, e.Y));//places the menu at the pointer position
+                    }
+                    break;
+            }
+        }
+
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timeGraph.Flip();
+            timeGraph.NotifyRedraw();
+        }
+
+        private void graphToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void onToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timeGraph.SetUseRegression(true);
+            timeGraph.NotifyRedraw();
+        }
+
+        private void offToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timeGraph.SetUseRegression(false);
+            timeGraph.NotifyRedraw();
+
+            
+        }
+        public void SetDateByString(string a,string b)
+        {
+            preTime.Value = DateTime.Parse(a);
+            curTime.Value = DateTime.Parse(b);
+        }
+       
     }
 }

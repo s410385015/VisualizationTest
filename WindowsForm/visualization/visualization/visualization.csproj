@@ -89,6 +89,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="matrix.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GraphBox.cs">
@@ -102,6 +103,12 @@
     </Compile>
     <Compile Include="ScatterPlot.Designer.cs">
       <DependentUpon>ScatterPlot.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TimeGraph.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TimeGraph.Designer.cs">
+      <DependentUpon>TimeGraph.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -122,6 +129,9 @@
     <EmbeddedResource Include="ScatterPlot.resx">
       <DependentUpon>ScatterPlot.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="TimeGraph.resx">
+      <DependentUpon>TimeGraph.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="ILMerge.props" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -135,7 +145,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="bin\App.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bin\Debug\loading.gif" />

@@ -379,7 +379,7 @@ namespace visualization
         {
             
             g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             if (isExist)
                 Update();
                 
@@ -442,7 +442,7 @@ namespace visualization
                             g.DrawString(n, label_axis_font, label_axis_brush, drawRect, label_axis_format);
                     }
                     else
-                        g.DrawString(data[i].data_label[j].ToString("00"), label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                        g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
                 if (reLabel)
@@ -536,7 +536,7 @@ namespace visualization
                             g.DrawString(n, label_axis_font, label_axis_brush, drawRect, label_axis_format);
                     }
                     else
-                        g.DrawString(data[i].data_label[j].ToString("00"), label_axis_font, label_axis_brush, drawRect, label_axis_format);
+                        g.DrawString(data[i].data_label[j].ToString(), label_axis_font, label_axis_brush, drawRect, label_axis_format);
                 }
 
 

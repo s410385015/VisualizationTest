@@ -7,3 +7,4 @@ D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\vi
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.Graph.resources
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.csprojResolveAssemblyReference.cache
 D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.ScatterPlot.resources
+D:\Github\VisualizationTest\WindowsForm\visualization\visualization\obj\Debug\visualization.TimeGraph.resources
