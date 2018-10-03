@@ -120,7 +120,7 @@ namespace visualization
                 }
                 else
                 {
-                    LabelMinMax lmm = new LabelMinMax(_max, _min , (int)((_max - _min) / ((_maxRange + _minRange) / 2))+2);
+                    LabelMinMax lmm = new LabelMinMax(_max, _min , Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2))+2,10));
                     labelRange.Add(lmm);
                 }
                  
@@ -234,10 +234,17 @@ namespace visualization
         {
             max = x;
             min=n;
-            
+
+            max = max+1;
+            min = min - 1;
+
             rangeBetween = r;
 
             i = (max - min) / r;
+            
+
+            //Console.WriteLine(min + " " + max + " " + r + " " + i);
+
 
             value = new List<float>();
 
@@ -251,6 +258,7 @@ namespace visualization
                 for (int j = 0; j <= r ; j++)
                     value.Add(min + (i * j));
             }
+           
         }
 
         
@@ -289,48 +297,69 @@ namespace visualization
         
         public static bool operator >(Data d1,Data d2)
         {
-            int t1, t2;
+          
             string[] s1, s2;
             s1=d1.time.Split('/');
             s2=d2.time.Split('/');
 
-            t1 = (Int32.Parse(s1[0]) * 365) + (Int32.Parse(s1[1]) * 31) + (Int32.Parse(s1[2]));
-            t2 = (Int32.Parse(s2[0]) * 365) + (Int32.Parse(s2[1]) * 31) + (Int32.Parse(s2[2]));
-            return t1 > t2;
+            if (Int32.Parse(s1[0]) < (Int32.Parse(s2[0])))
+                return false;
+            else if (Int32.Parse(s1[0]) > (Int32.Parse(s2[0])))
+                return true;
+
+            if (Int32.Parse(s1[1]) < (Int32.Parse(s2[1])))
+                return false;
+            else if (Int32.Parse(s1[1]) > (Int32.Parse(s2[1])))
+                return true;
+
+
+            if (Int32.Parse(s1[2]) < (Int32.Parse(s2[2])))
+                return false;
+            else if (Int32.Parse(s1[2]) > (Int32.Parse(s2[2])))
+                return true;
+
+            return false;
         }
 
         public static bool operator <(Data d1, Data d2)
         {
-            int t1, t2;
-            string[] s1, s2;
-            s1 = d1.time.Split('/');
-            s2 = d2.time.Split('/');
-
-            t1 = (Int32.Parse(s1[0]) * 365) + (Int32.Parse(s1[1]) * 31) + (Int32.Parse(s1[2]));
-            t2 = (Int32.Parse(s2[0]) * 365) + (Int32.Parse(s2[1]) * 31) + (Int32.Parse(s2[2]));
-            return t1 < t2;
+          
+            return d2>d1;
         }
         public static bool operator >=(Data d1, Data d2)
         {
-            int t1, t2;
+           
             string[] s1, s2;
             s1 = d1.time.Split('/');
             s2 = d2.time.Split('/');
 
-            t1 = (Int32.Parse(s1[0]) * 365) + (Int32.Parse(s1[1]) * 31) + (Int32.Parse(s1[2]));
-            t2 = (Int32.Parse(s2[0]) * 365) + (Int32.Parse(s2[1]) * 31) + (Int32.Parse(s2[2]));
-            return t1 >= t2;
+
+            if (Int32.Parse(s1[0]) < (Int32.Parse(s2[0])))
+                return false;
+            else if (Int32.Parse(s1[0]) > (Int32.Parse(s2[0])))
+                return true;
+
+            if (Int32.Parse(s1[1]) < (Int32.Parse(s2[1])))
+                return false;
+            else if (Int32.Parse(s1[1]) > (Int32.Parse(s2[1])))
+                return true;
+
+
+            if (Int32.Parse(s1[2]) < (Int32.Parse(s2[2])))
+                return false;
+            else if (Int32.Parse(s1[2]) > (Int32.Parse(s2[2])))
+                return true;
+
+            return true;
+;
+            
         }
         public static bool operator <=(Data d1, Data d2)
         {
-            int t1, t2;
-            string[] s1, s2;
-            s1 = d1.time.Split('/');
-            s2 = d2.time.Split('/');
 
-            t1 = (Int32.Parse(s1[0]) * 365) + (Int32.Parse(s1[1]) * 31) + (Int32.Parse(s1[2]));
-            t2 = (Int32.Parse(s2[0]) * 365) + (Int32.Parse(s2[1]) * 31) + (Int32.Parse(s2[2]));
-            return t1 <= t2;
+
+
+            return d2 >= d1;
         }
 
     }

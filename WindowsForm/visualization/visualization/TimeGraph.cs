@@ -49,6 +49,11 @@ namespace visualization
         public Point start_pos;
         public delegate void CallBack(string a,string b);
         public CallBack cb;
+        public bool flag;
+        public List<Data> draw_data;
+        public int total;
+     
+        public Dictionary<int, bool> DataShown;
 
         public TimeGraph()
         {
@@ -94,8 +99,13 @@ namespace visualization
             a = new List<float>();
             b = new List<float>();
             ith = new List<string>();
-            useRegression = false;
+            useRegression = true;
             isMouse = false;
+            flag = false;
+            draw_data = new List<Data>();
+            total = 0;
+           
+            DataShown = new Dictionary<int, bool>();
         }
 
 
@@ -108,7 +118,7 @@ namespace visualization
 
         public void NotifyRedraw()
         {
-            Console.WriteLine("??", this.Width);
+           
             pic.Invalidate();
         }
 
@@ -135,6 +145,26 @@ namespace visualization
             DrawData();
             DrawRay();
             DrawBoundary();
+
+
+           
+            for(int i=0;i<draw_data.Count;i++)
+            {
+                        
+                if(DataShown.ContainsKey(draw_data[i].type)&&DataShown[draw_data[i].type])
+                    DrawDataByList(draw_data[i].p,draw_data[i].dataColor);
+                
+            }
+
+            for (int i = 0; i < draw_data.Count; i++)
+            {
+                if (draw_data[i].type == 5)
+                {
+                    if (DataShown.ContainsKey(draw_data[i].type) && DataShown[draw_data[i].type])
+                        DrawRayByList(i);
+                }
+
+            }
         }
         
         public void reInit()
@@ -180,6 +210,49 @@ namespace visualization
                sf);
         }
 
+        public void SetDrawData(List<float> d,int t,int o,Color c,timeGraphObj _obj)
+        {
+            float per_width = (endX-startX ) / (float)total;
+            int per_length = (endY - startY) / 2;
+
+            //float max = timeGraphObj.GetMax(d);
+            float max = max_value;
+
+            List<Point> tmpP = new List<Point>();
+
+            for (int i = 0; i < d.Count; i++)
+                tmpP.Add(new Point((int)(startX + per_width * (i+o)), (int)((endY + startY) / 2 - per_length * (d[i] / max))));
+
+
+            Data _data=new Data(t,o,per_width,tmpP,d,c,_obj);
+            draw_data.Add(_data);
+
+            
+
+
+            /*
+            float per_width = (endX - startX) / (float)data.Count;
+            data_point.Clear();
+            int per_length = (endY - startY) / 2;
+
+            for (int i = 0; i < data.Count; i++)
+                data_point.Add(new Point((int)(startX + per_width * i), (int)((endY + startY) / 2 - per_length * (data[i] / max))));
+        
+             */ 
+        }
+
+        private void DrawDataByList(List<Point> p,Color c)
+        {
+
+            if (p.Count > 0)
+            {
+                Point[] points = p.ToArray();
+                g.DrawCurve(new Pen(c, back_line_size), points);
+
+            }
+        }
+
+
         public void SetData(List<float> _a,List<float> _b,string al,string bl,List<string> _ith)
         {
 
@@ -189,7 +262,7 @@ namespace visualization
             b = _b;
             ith = _ith;
             CalculateRegression();
-
+            SetUseRegression(true);
           
 
             List<float> diff = new List<float>();
@@ -202,10 +275,11 @@ namespace visualization
             max_value = max;
             a_label = al;
             b_label = bl;
+            total = diff.Count;
 
             ExtractDataPoint(diff, max);
             NotifyRedraw();
-            
+            flag = true;
         } 
 
 
@@ -303,8 +377,36 @@ namespace visualization
                    new SolidBrush(ray_color),
                    new Rectangle(new Point(cur_pos.X, cur_pos.Y-20), new Size(s.Length * 9, 40)),
                    sf);
+
+
+
             }
         }
+
+
+        public void DrawRayByList(int i)
+        {
+            if (data_point.Count > 0 && !isMouse)
+            {
+
+
+                //g.DrawLine(new Pen(ray_color, back_line_size), new Point(cur_pos.X, startY), new Point(cur_pos.X, endY));
+                string s="( a = "+draw_data[i].obj.a+" , b = "+draw_data[i].obj.b+" )";
+                StringFormat sf = new StringFormat();
+                sf.Alignment = StringAlignment.Near;
+
+                g.DrawString(s,
+                   axis_label_font,
+                   new SolidBrush(draw_data[i].dataColor),
+                   new Rectangle(new Point(cur_pos.X, cur_pos.Y - 40), new Size(s.Length * 9, 40)),
+                   sf);
+
+
+
+            }
+        }
+
+
 
         private void pic_MouseHover(object sender, EventArgs e)
         {
@@ -385,7 +487,8 @@ namespace visualization
                 case MouseButtons.Left:
                     {
                         isMouse = false;
-                        cb(ith[select_index_start],ith[select_index]);
+                        if(flag)
+                            cb(ith[select_index_start],ith[select_index]);
                     }
                     break;
 
@@ -399,6 +502,54 @@ namespace visualization
                 Point p=new Point(Math.Min(start_pos.X,cur_pos.X),Math.Min(start_pos.Y,cur_pos.Y));
                 Rectangle rec=new Rectangle(p,new Size(Math.Abs(start_pos.X-cur_pos.X),Math.Abs(start_pos.Y-cur_pos.Y)));
                 g.DrawRectangle(new Pen(ray_color, back_line_size), rec);
+                
+            }
+        }
+
+        private void pic_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public void AddShown(int index,bool flag=true)
+        {
+            if (!DataShown.ContainsKey(index))
+                DataShown.Add(index, true);
+            else
+                DataShown[index] = flag;
+        }
+
+       
+
+        public class Data
+        {
+            public int type;
+            public int offset;
+            public Color dataColor;
+            public float perWidth;
+            public List<float> _data;
+            public List<Point> p;
+            public timeGraphObj obj;
+            public Data()
+            {
+                 type = -1;
+                 offset = 0;
+                 perWidth = 0;
+                 _data = new List<float>();
+                 p = new List<Point>();
+                 dataColor = Color.Red;
+            }
+            public Data(int t,int o,float per,List<Point> _p,List<float> d,Color c,timeGraphObj _obj)
+            {
+                type = t;
+                offset = o;
+                perWidth = per;
+                p = new List<Point>();
+                p = _p;
+                _data = new List<float>();
+                _data = d;
+                dataColor = c;
+                obj = _obj;
             }
         }
     }

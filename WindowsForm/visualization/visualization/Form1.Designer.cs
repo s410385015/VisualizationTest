@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.LabelView = new MetroFramework.Controls.MetroListView();
             this.updateBtn = new MetroFramework.Controls.MetroButton();
             this.preTime = new MetroFramework.Controls.MetroDateTime();
@@ -46,6 +47,7 @@
             this.LabelViewMode = new MetroFramework.Controls.MetroContextMenu(this.components);
             this.normalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sortByCCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LabelViewCC = new MetroFramework.Controls.MetroListView();
             this.Loading = new System.Windows.Forms.PictureBox();
             this.graph_table_mode = new MetroFramework.Controls.MetroContextMenu(this.components);
@@ -58,12 +60,15 @@
             this.useRayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.time_graph_menu = new MetroFramework.Controls.MetroContextMenu(this.components);
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.graphToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.timeGraph = new visualization.TimeGraph();
             this.scatterPlot = new visualization.ScatterPlot();
             this.graph_table = new visualization.Graph();
+            this.yearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.onToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.offToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.yearToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.onToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.hideToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.RightClickMenu.SuspendLayout();
             this.LabelViewMode.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Loading)).BeginInit();
@@ -242,9 +247,10 @@
             this.LabelViewMode.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.LabelViewMode.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.normalToolStripMenuItem,
-            this.sortByCCToolStripMenuItem});
+            this.sortByCCToolStripMenuItem,
+            this.clearToolStripMenuItem});
             this.LabelViewMode.Name = "LabelViewMode";
-            this.LabelViewMode.Size = new System.Drawing.Size(159, 56);
+            this.LabelViewMode.Size = new System.Drawing.Size(159, 82);
             this.LabelViewMode.Opening += new System.ComponentModel.CancelEventHandler(this.LabelViewMode_Opening);
             // 
             // normalToolStripMenuItem
@@ -261,6 +267,13 @@
             this.sortByCCToolStripMenuItem.Text = "Sort by CC";
             this.sortByCCToolStripMenuItem.Click += new System.EventHandler(this.sortByCCToolStripMenuItem_Click);
             // 
+            // clearToolStripMenuItem
+            // 
+            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(158, 26);
+            this.clearToolStripMenuItem.Text = "Clear";
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
             // LabelViewCC
             // 
             this.LabelViewCC.AutoArrange = false;
@@ -269,6 +282,7 @@
             this.LabelViewCC.ForeColor = System.Drawing.SystemColors.WindowText;
             this.LabelViewCC.FullRowSelect = true;
             this.LabelViewCC.Location = new System.Drawing.Point(211, 416);
+            this.LabelViewCC.MultiSelect = false;
             this.LabelViewCC.Name = "LabelViewCC";
             this.LabelViewCC.OwnerDraw = true;
             this.LabelViewCC.Size = new System.Drawing.Size(121, 225);
@@ -280,11 +294,12 @@
             this.LabelViewCC.UseSelectable = true;
             this.LabelViewCC.UseStyleColors = true;
             this.LabelViewCC.View = System.Windows.Forms.View.List;
+            this.LabelViewCC.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.LabelViewCC_ItemChecked);
             this.LabelViewCC.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LabelViewCC_MouseDown);
             // 
             // Loading
             // 
-            this.Loading.Image = global::visualization.Properties.Resources.loading;
+            this.Loading.Image = ((System.Drawing.Image)(resources.GetObject("Loading.Image")));
             this.Loading.Location = new System.Drawing.Point(565, 87);
             this.Loading.Name = "Loading";
             this.Loading.Size = new System.Drawing.Size(541, 278);
@@ -315,14 +330,14 @@
             // halfToolStripMenuItem1
             // 
             this.halfToolStripMenuItem1.Name = "halfToolStripMenuItem1";
-            this.halfToolStripMenuItem1.Size = new System.Drawing.Size(112, 26);
+            this.halfToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
             this.halfToolStripMenuItem1.Text = "Half";
             this.halfToolStripMenuItem1.Click += new System.EventHandler(this.halfToolStripMenuItem1_Click);
             // 
             // fullToolStripMenuItem
             // 
             this.fullToolStripMenuItem.Name = "fullToolStripMenuItem";
-            this.fullToolStripMenuItem.Size = new System.Drawing.Size(112, 26);
+            this.fullToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
             this.fullToolStripMenuItem.Text = "Full";
             this.fullToolStripMenuItem.Click += new System.EventHandler(this.fullToolStripMenuItem_Click);
             // 
@@ -362,26 +377,17 @@
             this.time_graph_menu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.time_graph_menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.testToolStripMenuItem,
-            this.graphToolStripMenuItem1});
+            this.yearToolStripMenuItem,
+            this.yearToolStripMenuItem1});
             this.time_graph_menu.Name = "time_graph_menu";
-            this.time_graph_menu.Size = new System.Drawing.Size(193, 84);
+            this.time_graph_menu.Size = new System.Drawing.Size(182, 110);
             // 
             // testToolStripMenuItem
             // 
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(192, 26);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
             this.testToolStripMenuItem.Text = "Swap";
             this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
-            // 
-            // graphToolStripMenuItem1
-            // 
-            this.graphToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.onToolStripMenuItem,
-            this.offToolStripMenuItem});
-            this.graphToolStripMenuItem1.Name = "graphToolStripMenuItem1";
-            this.graphToolStripMenuItem1.Size = new System.Drawing.Size(192, 26);
-            this.graphToolStripMenuItem1.Text = "Use Regression";
-            this.graphToolStripMenuItem1.Click += new System.EventHandler(this.graphToolStripMenuItem1_Click);
             // 
             // timeGraph
             // 
@@ -413,19 +419,51 @@
             this.graph_table.Load += new System.EventHandler(this.graph_table_Load);
             this.graph_table.MouseDown += new System.Windows.Forms.MouseEventHandler(this.graph_table_MouseDown);
             // 
+            // yearToolStripMenuItem
+            // 
+            this.yearToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.onToolStripMenuItem,
+            this.hideToolStripMenuItem});
+            this.yearToolStripMenuItem.Name = "yearToolStripMenuItem";
+            this.yearToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.yearToolStripMenuItem.Text = "1_Year";
+            // 
             // onToolStripMenuItem
             // 
             this.onToolStripMenuItem.Name = "onToolStripMenuItem";
             this.onToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
             this.onToolStripMenuItem.Text = "On";
-            this.onToolStripMenuItem.Click += new System.EventHandler(this.onToolStripMenuItem_Click);
+            this.onToolStripMenuItem.Click += new System.EventHandler(this.onToolStripMenuItem_Click_1);
             // 
-            // offToolStripMenuItem
+            // hideToolStripMenuItem
             // 
-            this.offToolStripMenuItem.Name = "offToolStripMenuItem";
-            this.offToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
-            this.offToolStripMenuItem.Text = "Off";
-            this.offToolStripMenuItem.Click += new System.EventHandler(this.offToolStripMenuItem_Click);
+            this.hideToolStripMenuItem.Name = "hideToolStripMenuItem";
+            this.hideToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.hideToolStripMenuItem.Text = "Hide";
+            this.hideToolStripMenuItem.Click += new System.EventHandler(this.hideToolStripMenuItem_Click);
+            // 
+            // yearToolStripMenuItem1
+            // 
+            this.yearToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.onToolStripMenuItem1,
+            this.hideToolStripMenuItem1});
+            this.yearToolStripMenuItem1.Name = "yearToolStripMenuItem1";
+            this.yearToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.yearToolStripMenuItem1.Text = "5_Year";
+            // 
+            // onToolStripMenuItem1
+            // 
+            this.onToolStripMenuItem1.Name = "onToolStripMenuItem1";
+            this.onToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.onToolStripMenuItem1.Text = "On";
+            this.onToolStripMenuItem1.Click += new System.EventHandler(this.onToolStripMenuItem1_Click);
+            // 
+            // hideToolStripMenuItem1
+            // 
+            this.hideToolStripMenuItem1.Name = "hideToolStripMenuItem1";
+            this.hideToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.hideToolStripMenuItem1.Text = "Hide";
+            this.hideToolStripMenuItem1.Click += new System.EventHandler(this.hideToolStripMenuItem1_Click);
             // 
             // Form1
             // 
@@ -500,10 +538,14 @@
         private TimeGraph timeGraph;
         private MetroFramework.Controls.MetroContextMenu time_graph_menu;
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem graphToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem timeKValueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem yearToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem onToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem offToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hideToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem yearToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem onToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem hideToolStripMenuItem1;
        
 
     }

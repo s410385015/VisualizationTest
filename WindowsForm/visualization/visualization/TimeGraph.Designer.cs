@@ -39,6 +39,7 @@
             this.pic.Size = new System.Drawing.Size(100, 50);
             this.pic.TabIndex = 0;
             this.pic.TabStop = false;
+            this.pic.Click += new System.EventHandler(this.pic_Click);
             this.pic.Paint += new System.Windows.Forms.PaintEventHandler(this.pic_Paint);
             this.pic.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pic_MouseDown);
             this.pic.MouseHover += new System.EventHandler(this.pic_MouseHover);

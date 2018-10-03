@@ -114,7 +114,11 @@ namespace visualization
         // true  == horizontal
         // false == vertical
         public bool direction = true;
-
+        public bool mouseEnter;
+        public float alpha_f;
+        public float fade_alpha;
+        public float select_error;
+        public int select_DataLine;
         public Graph()
         {
             InitializeComponent();
@@ -199,6 +203,10 @@ namespace visualization
             useRay = false;
             ray_color = Color.FromArgb(46, 139, 87);
             ray_size = 2;
+            mouseEnter = false;
+            alpha_f = 1;
+            fade_alpha = 0.2f;
+            select_error = 0.005f;
         }
 
         public void SetMode(int m)
@@ -275,13 +283,14 @@ namespace visualization
 
             
             axis_length = (w - margin_left - margin_right) / (class_num - 1);
-            Console.WriteLine(w + " " + margin_left + " " + margin_right + " " + axis_length);
+            
             axis_height = this.Size.Height - margin_top - margin_bottom - label_height;
 
             max_right = (int)(this.Width - min_left);
             max_left = (int)(this.Width - min_right);
             max_top = (int)(this.Height - min_bottom);
             max_bottom = (int)(this.Height - min_top);
+            alpha_f = 1f;
             //PrintF();
         }
 
@@ -318,6 +327,8 @@ namespace visualization
 
                     for (int i = 0; i < class_num - 1; i++)
                         DrawDataLine2(i);
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawSingleDataLine2(i);
                     DrawFilter(r, r1);
                 }
                 else
@@ -326,6 +337,8 @@ namespace visualization
                         FilterDestory();
                     for (int i = 0; i < class_num - 1; i++)
                         DrawDataLine2(i);
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawSingleDataLine2(i);
 
                 }
                 DrawRay2();
@@ -347,6 +360,8 @@ namespace visualization
 
                     for (int i = 0; i < class_num - 1; i++)
                         DrawDataLine(i);
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawSingleDataLine(i);
                     DrawFilter(r, r1);
                 }
                 else
@@ -355,13 +370,15 @@ namespace visualization
                         FilterDestory();
                     for (int i = 0; i < class_num - 1; i++)
                         DrawDataLine(i);
+                    for (int i = 0; i < class_num - 1; i++)
+                        DrawSingleDataLine(i);
 
                 }
                 DrawRay();
             }
 
 
-            Console.WriteLine(startX + " " + startY);
+           
         }
         
         public void Reset()
@@ -370,6 +387,9 @@ namespace visualization
                 pictureBox1.Controls.Remove(dl.label);
             data.Clear();
             label_name.Clear();
+            isExist = false;
+            select_DataLine = -1;
+            NotifyRedraw();
         }
 
        
@@ -379,7 +399,8 @@ namespace visualization
         {
             
             g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+           
             if (isExist)
                 Update();
                 
@@ -409,6 +430,9 @@ namespace visualization
                 Point p2=new Point(startX+i*axis_length,startY+axis_height);
 
                 //axis label length between each others
+
+                if (data.Count== 0)
+                    break;
                 int axis_label_length = axis_height / (data[i].data_label.Count -1);
 
 
@@ -904,7 +928,7 @@ namespace visualization
 
         public void DrawDataLine(int index)
         {
-
+            
             if (index + 1< class_num && index>=0)
             {
                 startX = margin_left;
@@ -932,12 +956,17 @@ namespace visualization
                 float range_right = Math.Abs(data[index + 1].data_label[0] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]);
 
 
+                if (range_left == 0)
+                    range_left = 1f;
+                if (range_right == 0)
+                    range_right = 1f;
+
                 for (int i = 0; i < data_num; i++)
                 {
                     if (!isVisible[i])
                         continue;
                     Point p1, p2;
-                    Pen pen = new Pen(GetTimeColor(i), data_line_size);
+                    
                     
 
                     if (flag_left)
@@ -969,7 +998,17 @@ namespace visualization
                     }
 
 
+
+                    if (isInLine(p1, p2, new Point(curX, curY)))
+                    {
+                        select_DataLine = i;
+                      
+                    }
+                  
+                     alpha_f = fade_alpha;
+
                     
+                    Pen pen = new Pen(GetTimeColor(i), data_line_size);
                     g.DrawLine(pen, p1, p2);
                     //Console.WriteLine(pen.Color.A);
 
@@ -1022,7 +1061,7 @@ namespace visualization
                     if (!isVisible[i])
                         continue;
                     Point p1, p2;
-                    Pen pen = new Pen(GetTimeColor(i), data_line_size);
+                    
 
 
                     if (flag_up)
@@ -1055,6 +1094,17 @@ namespace visualization
 
 
 
+
+                    if (isInLine(p1, p2, new Point(curX, curY)))
+                    {
+                        select_DataLine = i;
+                        
+                    }
+                    
+                    alpha_f = fade_alpha;
+
+
+                    Pen pen = new Pen(GetTimeColor(i), data_line_size);
                     g.DrawLine(pen, p1, p2);
                     //Console.WriteLine(pen.Color.A);
 
@@ -1088,7 +1138,7 @@ namespace visualization
         }
 
 
-        public Color GetTimeColor(int cur)
+        public Color GetTimeColor(int cur,bool flag=false)
         {
             if (data_num - 1 == 0)
                 return data_new;
@@ -1099,11 +1149,19 @@ namespace visualization
             switch(mode)
             {
                 case 0:
+
+                    float f = 1f;
+
+                    if (mouseEnter)
+                        f = alpha_f;
                     float factor = (float)cur / (data_num - 1);
                     int r=Math.Abs(data_old.R-(int)((data_old.R-data_new.R)*factor));
                     int g=Math.Abs(data_old.G-(int)((data_old.G-data_new.G)*factor));
                     int b=Math.Abs(data_old.B-(int)((data_old.B-data_new.B)*factor));
-                    newColor = Color.FromArgb(Alpha,r, g, b);
+                    if(flag)
+                        newColor = Color.FromArgb(255, r, g, b);
+                    else
+                        newColor = Color.FromArgb((int)(Alpha*f),r, g, b);
                     break;
                 case 1:
                      alpha_range = Alpha;
@@ -1286,18 +1344,27 @@ namespace visualization
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-
-            if (isMouse)
-            {
+            if(isMouse)
                 cur_Pos = e.Location;
-                pictureBox1.Invalidate();
-            }
-            if (useRay)
+
+            curY = e.Location.Y;
+            curX = e.Location.X;
+
+            if (curX > margin_left
+                && curY > margin_top
+                && curX < this.Width - margin_right
+                && curY < this.Height - margin_bottom)
             {
-                curY = e.Location.Y;
-                curX = e.Location.X;
-                pictureBox1.Invalidate();
+                mouseEnter = true;
+
             }
+            else
+            {
+                alpha_f = 1f;
+                select_DataLine = -1;
+                mouseEnter = false;
+            }
+            pictureBox1.Invalidate();
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -1433,6 +1500,7 @@ namespace visualization
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
+
             MouseEventArgs me = (MouseEventArgs) e;
             if ( me.Button== System.Windows.Forms.MouseButtons.Right)
             {
@@ -1500,6 +1568,211 @@ namespace visualization
             FilterDestory();
             NotifyRedraw();
          
+        }
+
+        public bool isInLine(Point p1,Point p2,Point pos)
+        {
+
+           
+           if (direction)
+           {
+               if (p1.X > pos.X || p2.X < pos.X)
+                   return false;
+               if (Math.Abs(((float)(p1.Y - p2.Y) / (p1.X - p2.X)) - ((float)(pos.Y - p2.Y) / (pos.X - p2.X))) < select_error)
+                   return true;
+           }else
+           {
+               if (p1.Y > pos.Y || p2.Y < pos.Y)
+                   return false;
+               //Console.WriteLine(((float)(p1.X - p2.X) / (p1.Y - p2.Y)).ToString() + " -- " + ((float)(pos.X - p2.X) / (pos.Y - p2.Y)).ToString());
+               if (Math.Abs(((float)(p1.X - p2.X) / (p1.Y - p2.Y)) - ((float)(pos.X - p2.X) / (pos.Y - p2.Y))) < select_error*5)
+                   return true;
+           }
+            
+            return false;
+        }
+
+        public void DrawSingleDataLine(int index)
+        {
+            if (select_DataLine == -1)
+                return;
+
+            if (index + 1 < class_num && index >= 0)
+            {
+                startX = margin_left;
+                startY = margin_top;
+
+
+                //true : bottom to top
+                //false: top to bottom
+                bool flag_left = true;
+                bool flag_right = true;
+
+                if (data[index].data_label.Count > 1)
+                    flag_left = (data[index].data_label[1] > data[index].data_label[0]) ? (true) : (false);
+
+                if (data[index + 1].data_label.Count > 1)
+                    flag_right = (data[index + 1].data_label[1] > data[index + 1].data_label[0]) ? (true) : (false);
+
+
+
+                int left_x = startX + index * axis_length;
+                int right_x = startX + (index + 1) * axis_length;
+
+
+                float range_left = Math.Abs(data[index].data_label[0] - data[index].data_label[data[index].data_label.Count - 1]);
+                float range_right = Math.Abs(data[index + 1].data_label[0] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]);
+
+
+                if (range_left == 0)
+                    range_left = 1f;
+                if (range_right == 0)
+                    range_right = 1f;
+
+                int i=select_DataLine;
+                //if (!isVisible[i])
+                    //continue;
+                Point p1, p2;
+
+
+
+                if (flag_left)
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[0]) / range_left);
+                    int offset = (int)(axis_height * factor);
+                    p1 = new Point(left_x, startY + axis_height - offset);
+                }
+                else
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[data[index].data_label.Count - 1]) / range_left);
+                    int offset = (int)(axis_height * factor);
+                    p1 = new Point(left_x, startY + offset);
+                }
+
+
+
+                if (flag_right)
+                {
+                    float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[0]) / range_right);
+                    int offset = (int)(axis_height * factor);
+                    p2 = new Point(right_x, startY + axis_height - offset);
+                }
+                else
+                {
+                    float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]) / range_right);
+                    int offset = (int)(axis_height * factor);
+                    p2 = new Point(right_x, startY + offset);
+                }
+
+
+
+               
+                alpha_f = 1f;
+               
+
+
+                Pen pen = new Pen(GetTimeColor(i,true), data_line_size);
+                g.DrawLine(pen, p1, p2);
+                //Console.WriteLine(pen.Color.A);
+
+
+
+                }
+            
+
+        }
+        public void DrawSingleDataLine2(int index)
+        {
+            if (select_DataLine == -1)
+                return;
+
+            if (index + 1 < class_num && index >= 0)
+            {
+                startX = margin_left;
+                startY = margin_top;
+
+
+                //true : left to right
+                //false: right to left
+                bool flag_up = true;
+                bool flag_down = true;
+
+                if (data[index].data_label.Count > 1)
+                    flag_up = (data[index].data_label[1] > data[index].data_label[0]) ? (true) : (false);
+
+                if (data[index + 1].data_label.Count > 1)
+                    flag_down = (data[index + 1].data_label[1] > data[index + 1].data_label[0]) ? (true) : (false);
+
+
+
+
+                int axis_width2 = this.Size.Width - margin_left - margin_right - label_width;
+                int axis_height2 = (this.Size.Height - margin_top - margin_bottom) / (class_num - 1);
+
+                int up_y = startY + index * axis_height2;
+                int down_y = startY + (index + 1) * axis_height2;
+
+
+                float range_up = Math.Abs(data[index].data_label[0] - data[index].data_label[data[index].data_label.Count - 1]);
+                float range_down = Math.Abs(data[index + 1].data_label[0] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]);
+
+
+
+                int i = select_DataLine;
+                Point p1, p2;
+
+
+
+                if (flag_up)
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[0]) / range_up);
+                    int offset = (int)(axis_width2 * factor);
+                    p1 = new Point(startX + offset, up_y);
+                }
+                else
+                {
+                    float factor = ((data[index]._data[i] - data[index].data_label[data[index].data_label.Count - 1]) / range_up);
+                    int offset = (int)(axis_width2 * factor);
+                    p1 = new Point(startX + axis_width2 - offset, up_y);
+                }
+
+
+
+                if (flag_down)
+                {
+                    float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[0]) / range_down);
+                    int offset = (int)(axis_width2 * factor);
+                    p2 = new Point(startX + offset, down_y);
+                }
+                else
+                {
+                    float factor = ((data[index + 1]._data[i] - data[index + 1].data_label[data[index + 1].data_label.Count - 1]) / range_down);
+                    int offset = (int)(axis_width2 * factor);
+                    p2 = new Point(startX + axis_width2 - offset, down_y);
+                }
+
+
+
+              
+               alpha_f = 1f;
+               
+
+
+                Pen pen = new Pen(GetTimeColor(i,true), data_line_size);
+                g.DrawLine(pen, p1, p2);
+                //Console.WriteLine(pen.Color.A);
+
+
+
+                
+            }
+        }
+
+        private void pictureBox1_MouseLeave(object sender, EventArgs e)
+        {
+            alpha_f = 1f;
+            mouseEnter = false;
+            NotifyRedraw();
         }
     }
     public class DataLabel
