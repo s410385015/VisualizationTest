@@ -1,5 +1,8 @@
 visualization.exe
 Bunifu_UI_v1.5.3.dll
+Extreme.Data.dll
+Extreme.Numerics.Generic.Net40.dll
+Extreme.Numerics.Net40.dll
 MetroFramework.Design.dll
 MetroFramework.dll
 MetroFramework.Fonts.dll

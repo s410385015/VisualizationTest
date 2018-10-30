@@ -21,6 +21,7 @@ namespace visualization
             b = 0;
         }
 
+       
         public void SetData(List<float> _x,List<float> _y)
         {
             x = _x;

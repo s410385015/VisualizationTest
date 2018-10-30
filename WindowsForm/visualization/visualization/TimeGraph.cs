@@ -47,7 +47,7 @@ namespace visualization
         public float bias;
         public bool isMouse;
         public Point start_pos;
-        public delegate void CallBack(string a,string b);
+        public delegate void CallBack(string a,string b,List<float> w);
         public CallBack cb;
         public bool flag;
         public List<Data> draw_data;
@@ -246,13 +246,19 @@ namespace visualization
 
             if (p.Count > 0)
             {
-                Point[] points = p.ToArray();
-                g.DrawCurve(new Pen(c, back_line_size), points);
-
+                if (p.Count > 1)
+                {
+                    Point[] points = p.ToArray();
+                    g.DrawCurve(new Pen(c, back_line_size), points);
+                }
+                else
+                {
+                    g.FillRectangle(new SolidBrush(c), p[0].X, p[0].Y, 1, 1);
+                }
             }
         }
 
-
+         
         public void SetData(List<float> _a,List<float> _b,string al,string bl,List<string> _ith)
         {
 
@@ -261,9 +267,24 @@ namespace visualization
             a = _a;
             b = _b;
             ith = _ith;
-            CalculateRegression();
+            //CalculateRegression();
+            
+           
+            
+            double[,] data = new double[_a.Count, 2];
+
+            for(int i=0;i<_a.Count;i++)
+            {
+                data[i, 0] = _a[i];
+                data[i, 1] = _b[i];
+            }
+
+            PCA pca = new PCA(data);
+            FuncMatrix = new matrix(1, 2);
+            FuncMatrix.m[0] = (float)pca.a;
+            FuncMatrix.m[1] = (float)pca.b;
             SetUseRegression(true);
-          
+            
 
             List<float> diff = new List<float>();
             float max = 0;
@@ -353,7 +374,7 @@ namespace visualization
 
         public void DrawRay()
         {
-            if (data_point.Count > 0&&!isMouse)
+            if (data_point.Count > 0)
             {
                 
 
@@ -488,7 +509,7 @@ namespace visualization
                     {
                         isMouse = false;
                         if(flag)
-                            cb(ith[select_index_start],ith[select_index]);
+                            cb(ith[select_index_start],ith[select_index],FuncMatrix.m);
                     }
                     break;
 

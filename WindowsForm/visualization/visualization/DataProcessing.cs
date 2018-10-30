@@ -90,11 +90,12 @@ namespace visualization
         //Calculate the min and max value of the each axis by condition
         public void CalculateLabelRange(List<Data> pick_data)
         {
+            
             labelRange = new List<LabelMinMax>();
             for(int i=0;i<labelNum;i++)
             {
                 float _min, _max, _minRange, _maxRange;
-                float tmp = pick_data[0].data[i];
+                float tmp = pick_data[0].data[i];    
                 _max = -0xffffffff;
                 _min=_minRange = 0xffffffff;
                 _maxRange=0;
@@ -105,7 +106,8 @@ namespace visualization
                    
                     _max = Math.Max(_max, pick_data[j].data[i]);
                     _min = Math.Min(_min, pick_data[j].data[i]);
-
+                    
+                  
                     _maxRange = Math.Max(_maxRange, Math.Abs(pick_data[j].data[i]-tmp));
                     _minRange = Math.Min(_minRange, Math.Abs(pick_data[j].data[i] - tmp));
 
@@ -115,12 +117,14 @@ namespace visualization
                 
                 if(_min==_max)
                 {
-                    LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f*_max), Math.Abs(_min - 0.1f*_min), 2);
+                    //LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f*_max), Math.Abs(_min - 0.1f*_min), 2);
+                    LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f * _max), Math.Abs(_min - 0.1f * _min), 2);
                     labelRange.Add(lmm);
                 }
                 else
                 {
-                    LabelMinMax lmm = new LabelMinMax(_max, _min , Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2))+2,10));
+                    //LabelMinMax lmm = new LabelMinMax(_max, _min , Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2))+2,10));
+                    LabelMinMax lmm = new LabelMinMax(_max+_minRange, _min-_minRange, Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2)) + 2, 5),false);
                     labelRange.Add(lmm);
                 }
                  
@@ -128,6 +132,116 @@ namespace visualization
                 //labelRange.Add(lmm);
             }
         }
+
+        public void CalculateLabelRange(List<Data> pick_data,List<int> index,List<float> w)
+        {
+            labelRange = new List<LabelMinMax>();
+            for (int i = 0; i < labelNum; i++)
+            {
+                LabelMinMax lmm = new LabelMinMax();
+                labelRange.Add(lmm);
+            }
+    
+
+
+            int indexA, indexB;
+            indexA = index[0];
+            indexB = index[1];
+            float _minA, _maxA, _minRangeA, _maxRangeA;
+            float _minB, _maxB, _minRangeB, _maxRangeB;
+            float _minTmp, _maxTmp, _minRangeTmp, _maxRangeTmp;
+            _maxA = -0xffffffff;
+            _minA = _minRangeA = 0xffffffff;
+            _maxRangeA = 0;
+
+            _maxB = -0xffffffff;
+            _minB = _minRangeB = 0xffffffff;
+            _maxRangeB = 0;
+
+            _maxTmp = -0xffffffff;
+            _minTmp = _minRangeTmp = 0xffffffff;
+            _maxRangeTmp = 0;
+            float tmpA = pick_data[0].data[indexA];
+            float tmpB = pick_data[0].data[indexB];
+ 
+            for (int j = 0; j < pick_data.Count; j++)
+            {
+
+                //if (pick_data[j].data[indexA] * w[0] + w[1] - pick_data[j].data[indexB] < 1) ;
+
+                //Console.WriteLine(pick_data[j].data[indexA] + " " + pick_data[j].data[indexB] + " " + w[0] + " " + w[1]);
+                //Console.WriteLine((pick_data[j].data[indexA] * w[0] + w[1] - pick_data[j].data[indexB]));
+                 _maxA = Math.Max(_maxA, pick_data[j].data[indexA]);
+                 _minA = Math.Min(_minA, pick_data[j].data[indexA]);
+
+                 _maxTmp = Math.Max(_maxTmp, pick_data[j].data[indexA]*w[0]+w[1]);
+                 _minTmp = Math.Min(_minTmp, pick_data[j].data[indexA]*w[0]+w[1]);
+
+                 _maxB = Math.Max(_maxB, pick_data[j].data[indexB]);
+                 _minB = Math.Min(_minB, pick_data[j].data[indexB]);
+
+                _maxRangeA = Math.Max(_maxRangeA, Math.Abs(pick_data[j].data[indexA] - tmpA));
+                _minRangeA = Math.Min(_minRangeA, Math.Abs(pick_data[j].data[indexA] - tmpA));
+
+                _maxRangeB = Math.Max(_maxRangeB, Math.Abs(pick_data[j].data[indexB] - tmpB));
+                _minRangeB = Math.Min(_minRangeB, Math.Abs(pick_data[j].data[indexB] - tmpB));
+            }
+
+            
+            
+            if(_maxB>_maxTmp)
+            {
+                float x = _maxTmp - _minTmp;
+                float y = _maxB - _maxTmp;
+
+                _maxA += (_maxA - _minA) * ( y/ x);
+            }
+            if(_minB<_minTmp)
+            {
+                float x = _maxTmp - _minTmp;
+                float y = _minTmp - _minB;
+
+
+                _minA -= (_maxA - _minA) * (y / x);
+            }
+            
+            _maxB = Math.Max(_maxB, _maxTmp);
+            _minB = Math.Min(_minB, _minTmp);
+            
+
+            //_maxB = _maxTmp;
+            //_minB = _minTmp;
+            if (_minA == _maxA)
+            {
+                //LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f*_max), Math.Abs(_min - 0.1f*_min), 2);
+                LabelMinMax lmm = new LabelMinMax(_maxA + Math.Abs(0.1f * _maxA), Math.Abs(_minA - 0.1f * _minA), 2);
+                labelRange[indexA] = lmm;
+            }
+            else
+            {
+                //LabelMinMax lmm = new LabelMinMax(_max, _min , Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2))+2,10));
+                LabelMinMax lmm = new LabelMinMax(_maxA + _minRangeA, _minA - _minRangeA, Math.Min((int)((_maxA - _minA) / ((_maxRangeA + _minRangeA) / 2)) + 2, 5), false);
+                labelRange[indexA] = lmm;
+            }
+
+            if (_minB == _maxB)
+            {
+                //LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f*_max), Math.Abs(_min - 0.1f*_min), 2);
+                LabelMinMax lmm = new LabelMinMax(_maxB + Math.Abs(0.1f * _maxB), Math.Abs(_minB - 0.1f * _minB), 2);
+                labelRange[indexB] = lmm;
+            }
+            else
+            {
+                //LabelMinMax lmm = new LabelMinMax(_max, _min , Math.Min((int)((_max - _min) / ((_maxRange + _minRange) / 2))+2,10));
+                LabelMinMax lmm = new LabelMinMax(_maxB + _minRangeB, _minB - _minRangeB, Math.Min((int)((_maxB- _minB) / ((_maxRangeB + _minRangeB) / 2)) + 2, 5), false);
+                labelRange[indexB] = lmm;
+            }
+            //LabelMinMax lmm = new LabelMinMax(_max + Math.Abs(0.1f * _max), Math.Abs(_min - 0.1f * _min), (int)((_max - _min) / ((_maxRange + _minRange) / 2)) + 2);
+            //labelRange.Add(lmm);
+            
+        }
+
+
 
         public List<float> GetDate(int n)
         {
@@ -171,8 +285,8 @@ namespace visualization
 
 
                 
-
-                LabelMinMax lmm = new LabelMinMax(_max , _min, 5);
+                
+                LabelMinMax lmm = new LabelMinMax(_max , _min, 5,false);
                 labelRange.Add(lmm);
             }
         }
@@ -230,14 +344,27 @@ namespace visualization
         public int rangeBetween;
         public List<float> value;
         public float i;
+
+        public LabelMinMax()
+        {
+
+        }
         public LabelMinMax(float x,float n,int r,bool flag=true)
         {
-            max = x;
-            min=n;
+            if (flag)
+            {
+                max = x;
+                min = n;
 
-            max = max+1;
-            min = min - 1;
+                max = max + 1;
+                min = min - 1;
+            }
+            else
+            {
+                max = x;
+                min = n;
 
+            }
             rangeBetween = r;
 
             i = (max - min) / r;
@@ -256,7 +383,7 @@ namespace visualization
             else
             {
                 for (int j = 0; j <= r ; j++)
-                    value.Add(min + (i * j));
+                    value.Add((float)Math.Round(min + (i * j)));
             }
            
         }
@@ -273,6 +400,8 @@ namespace visualization
     {
         public string time;
         public List<float> data;
+
+
 
         public Data(string t,List<float> d)
         {

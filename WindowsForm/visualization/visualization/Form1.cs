@@ -31,8 +31,8 @@ namespace visualization
         {
             InitializeComponent();
 
-            TestFunc();    
-
+            TestFunc();
+         
 
             Panel_Layer=new List<List<Control>>();
 
@@ -297,7 +297,7 @@ namespace visualization
         /// <summary>
         ///  選定兩個Label 日期在中間
         /// </summary>
-        private void newUpdateGraphTable()
+        private void newUpdateGraphTable(List<float> weight)
         {
 
             graph_table.Reset();
@@ -361,10 +361,13 @@ namespace visualization
             dataNumLabel.Text = "Number of Data : " + tmpData.Count;
 
             //tmpData = dp.SearchData("2007/1/2", "2007/1/10");
-            dp.CalculateLabelRange(tmpData);
+            //dp.CalculateLabelRange(tmpData);
 
+           dp.CalculateLabelRange(tmpData,select_index,weight);
+           
             //dp.CalculateLabelRange();
-            //dp.TestFunc();
+            //dp.CalculateLabelRange();
+            //dp.TestFunc(
 
             List<List<float>> tmpdata = new List<List<float>>();
 
@@ -998,7 +1001,9 @@ namespace visualization
 
             timeGraph.draw_data.Clear();
 
-            
+            //CutByBefore(a, b, 365, Color.Red, 1);
+            //CutByBefore(a, b, 250*5, Color.Green, 5);
+            /*
             int offset = 0;
             for (int i = 7; i < 17; i++)
             {
@@ -1023,7 +1028,7 @@ namespace visualization
 
             CutDataByYear(a, b, y1_st, y1_et, y2_st, y2_et, 0, Color.Green,5);
 
-           
+           */
         }
 
         private void timeGraph_MouseDown(object sender, MouseEventArgs e)
@@ -1063,11 +1068,11 @@ namespace visualization
 
             
         }
-        public void SetDateByString(string a,string b)
+        public void SetDateByString(string a,string b,List<float> weight)
         {
             preTime.Value = DateTime.Parse(a);
             curTime.Value = DateTime.Parse(b);
-            newUpdateGraphTable();
+            newUpdateGraphTable(weight);
         }
 
         private void LabelViewCC_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -1132,7 +1137,40 @@ namespace visualization
             }
         }
         
+        public void CutByBefore(int xi,int yi,int offset,Color c,int type)
+        {
+            List<float> y1_x = new List<float>();
+            List<float> y1_y = new List<float>();
+            List<float> data = new List<float>();
 
+            List<float> _x = new List<float>();
+            List<float> _y = new List<float>();
+            //i+offset < dp.data.Count
+            for (int i = 0; i + offset < dp.dataNum; i++)
+            {
+                Double[,] d = new double[offset, 2];
+                for(int j=0;j<offset;j++)
+                {
+                    d[j, 0] = dp.data[i + j].data[xi];
+                    d[j,1]=dp.data[i+j].data[yi];
+                 
+                }
+               
+                PCA pca = new PCA(d);
+                data.Add((float)pca.a * dp.data[i + offset].data[xi] + (float)pca.b - dp.data[i + offset].data[yi]);
+                _x.Add(dp.data[i + offset].data[xi]);
+                _y.Add(dp.data[i + offset].data[yi]);
+             
+                Console.WriteLine(i.ToString());
+            }
+            timeGraphObj tgoj = new timeGraphObj();
+          
+
+        
+            tgoj.SetData(_x, _y);
+            timeGraph.SetDrawData(data, type, offset, c, tgoj);
+            timeGraph.AddShown(type);
+        }
         public int CutDataByYear(int xi,int yi,string y1_s,string y1_e,string y2_s,string y2_e,int offset,Color c,int type)
         {
             
@@ -1168,7 +1206,7 @@ namespace visualization
 
             offset += y1.Count;
 
-            Console.WriteLine(offset+" "+tmpf.Count);
+          
             
             timeGraph.SetDrawData(tmpf, type, offset, c,tgoj);
             timeGraph.AddShown(type);
